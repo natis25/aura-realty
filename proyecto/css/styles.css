@@ -1,0 +1,182 @@
+/* Estilos para el login basado en la imagen adjunta */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: url('../images/keys-house.png') center/cover no-repeat fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 70px;
+  background: #0b3a62; /* azul oscuro */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  box-sizing: border-box;
+  z-index: 2;
+}
+
+.header .logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.container {
+  width: 700px;
+  max-width: 95%;
+  padding: 48px;
+  border: 6px solid rgba(255,255,255,0.95);
+  border-radius: 14px;
+  background: rgba(0,0,0,0.35);
+  color: #f0d9a6; /* tono dorado claro para títulos y labels */
+  text-align: center;
+  backdrop-filter: blur(4px);
+}
+
+.container h1 {
+  margin-top: 0;
+  font-size: 34px;
+  color: #f0d9a6;
+}
+
+.form-row {
+  margin: 18px 0;
+  text-align: left;
+}
+
+.form-row label {
+  display: block;
+  color: #f0d9a6;
+  margin-bottom: 8px;
+}
+
+.form-row input[type="text"],
+.form-row input[type="password"] {
+  width: 100%;
+  padding: 12px 18px;
+  border-radius: 22px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.btn {
+  display: inline-block;
+  background: #0b3a62;
+  color: #fff;
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.signup {
+  margin-top: 16px;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .container { padding: 24px; }
+}
+
+
+
+
+
+/* ======== ESTILO ESPECIAL PARA REGISTER ======== */
+.register-page {
+  background: url('../images/edif.png') center/cover no-repeat fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.register-container {
+  width: 750px;
+  max-width: 95%;
+  padding: 48px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.register-container h1 {
+  font-size: 28px;
+  color: #b78f45; /* tono dorado */
+  margin-bottom: 24px;
+}
+
+.register-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  text-align: left;
+}
+
+.register-form label {
+  font-weight: 600;
+  color: #0b3a62;
+}
+
+.register-form input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.register-form input:focus {
+  border-color: #b78f45;
+}
+
+.full-width {
+  grid-column: span 2;
+}
+
+.btn-register {
+  grid-column: span 2;
+  background: #0b3a62;
+  color: white;
+  padding: 12px 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.btn-register:hover {
+  background: #092b4a;
+}
+
+.signup-link {
+  margin-top: 16px;
+  color: #333;
+  font-size: 15px;
+}
+
+.signup-link a {
+  color: #0b3a62;
+  text-decoration: none;
+  font-weight: 600;
+}
+.signup-link a:hover {
+  text-decoration: underline;
+}
