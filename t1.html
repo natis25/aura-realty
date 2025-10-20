@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sección Inmobiliaria - Sobre Nosotros</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #1f1f1f;
+    --gold: #b18756;
+    --muted: #777;
+    --light: #f6f6f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #fff;
+    color: var(--accent);
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  .about {
+    display: flex;
+    gap: 6%;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 8%;
+    max-width: 1600px;
+    margin: auto;
+  }
+
+  /* Imagen izquierda */
+  .about .left {
+    flex: 0 0 48%;
+    position: relative;
+    height: 640px;
+    overflow: hidden;
+    border-radius: 10px;
+    transform: translateY(40px);
+    opacity: 0;
+    transition: all 1s ease;
+  }
+  .about .left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.5s ease, opacity 0.8s ease;
+  }
+  .about .left:hover img {
+    transform: scale(1.05);
+  }
+
+  /* Contenido derecho */
+  .about .right {
+    flex: 1;
+    padding: 10px 0;
+    min-height: 640px;
+    transform: translateY(40px);
+    opacity: 0;
+    transition: all 1s ease;
+  }
+
+  .about.visible .left,
+  .about.visible .right {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+
+  .title {
+    font-size: 56px;
+    line-height: 1.05;
+    font-weight: 900;
+    margin-bottom: 20px;
+  }
+
+  .lead {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 580px;
+    margin-bottom: 28px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 40px;
+    align-items: flex-end;
+    border-bottom: 1px solid #e6e6e6;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+
+  .tabs button {
+    background: none;
+    border: none;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 16px;
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .tabs button:hover { color: var(--gold); }
+  .tabs button.active {
+    color: var(--gold);
+  }
+  .tabs button.active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -18px;
+    width: 40px;
+    height: 4px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+
+  /* Texto y subimagen */
+  .tab-body {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .tab-body.fade {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  .tab-body .text {
+    flex: 1;
+  }
+  .tab-body p {
+    color: #5c5c5c;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 18px;
+  }
+
+  .features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 22px 0;
+  }
+  .features li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    color: #444;
+    font-size: 15px;
+  }
+  .features .ico {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  /* Subimagen */
+  .subimg-wrap {
+    flex: 0 0 260px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .subimg {
+    width: 240px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    transition: transform 1s ease;
+  }
+  .subimg img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  .subimg:hover {
+    transform: scale(1.04);
+  }
+
+  /* Responsivo */
+  @media (max-width: 1100px) {
+    .title { font-size: 44px; }
+    .about { flex-direction: column; padding: 60px 6%; }
+    .about .left, .about .right { width: 100%; height: auto; }
+    .tab-body { flex-direction: column; }
+    .subimg-wrap { justify-content: flex-start; }
+  }
+</style>
+</head>
+
+<body>
+  <section class="about" id="about">
+    <div class="left">
+      <img id="mainImage" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80" alt="Casa moderna con arquitectura elegante">
+    </div>
+
+    <div class="right">
+      <div class="meta">Sobre Nosotros</div>
+      <h1 class="title">Te brindamos la mejor<br>experiencia inmobiliaria.</h1>
+      <p class="lead">
+        Nuestra inmobiliaria ofrece viviendas modernas, elegantes y con diseños innovadores que transforman la forma de vivir.
+      </p>
+
+      <div class="tabs">
+        <button class="active" data-tab="arquitectura">Arquitectura</button>
+        <button data-tab="interior">Diseño Interior</button>
+        <button data-tab="3d">Diseño 3D</button>
+      </div>
+
+      <div class="tab-body" id="tabContent">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const section = document.querySelector('.about');
+    const tabContent = document.getElementById('tabContent');
+    const mainImage = document.getElementById('mainImage');
+    const buttons = document.querySelectorAll('.tabs button');
+
+    const data = {
+      arquitectura: {
+        text: `
+          <p>Nuestro equipo de arquitectos diseña espacios que combinan estética, funcionalidad y sostenibilidad.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Proyectos innovadores y modernos</li>
+            <li><span class="ico">✓</span> Supervisión constante y control de calidad</li>
+            <li><span class="ico">✓</span> Materiales de alta durabilidad y eficiencia</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80",
+        mainImg: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80"
+      },
+      interior: {
+        text: `
+          <p>Convertimos espacios en lugares acogedores, elegantes y funcionales, reflejando el estilo de cada cliente.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Diseño personalizado y exclusivo</li>
+            <li><span class="ico">✓</span> Asesoramiento en materiales y decoración</li>
+            <li><span class="ico">✓</span> Armonía entre estética y confort</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+        mainImg: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
+      },
+      "3d": {
+        text: `
+          <p>Ofrecemos visualizaciones 3D realistas para que imagines tu proyecto antes de hacerlo realidad.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Modelado y renders de alta calidad</li>
+            <li><span class="ico">✓</span> Presentaciones virtuales inmersivas</li>
+            <li><span class="ico">✓</span> Revisión y ajustes antes de la ejecución</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80",
+        mainImg: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80"
+      }
+    };
+
+    function showTab(tab) {
+      buttons.forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+      tabContent.classList.add('fade');
+      setTimeout(() => {
+        tabContent.innerHTML = `
+          <div class="text">${data[tab].text}</div>
+          <div class="subimg-wrap"><div class="subimg"><img src="${data[tab].img}" alt=""></div></div>
+        `;
+        tabContent.classList.remove('fade');
+        
+        // Transición suave para la imagen principal
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+          mainImage.src = data[tab].mainImg;
+          mainImage.style.opacity = '1';
+        }, 300);
+      }, 300);
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.tab));
+    });
+
+    // Mostrar la primera por defecto
+    showTab('arquitectura');
+
+    // Animación al hacer scroll
+    function revealSection() {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 100) {
+        section.classList.add('visible');
+        window.removeEventListener('scroll', revealSection);
+      }
+    }
+    window.addEventListener('scroll', revealSection);
+    revealSection();
+  </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner Asimétrico - Diseño de Interiores</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .banner {
+            width: 100%;
+            max-width: 1200px;
+            height: 500px;
+            background: linear-gradient(135deg, #f8f8f8 0%, #eaeaea 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            position: relative;
+        }
+        
+        .content {
+            flex: 1;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+        }
+        
+        .tagline {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8a6d3b;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: #333;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 32px;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 25px;
+        }
+        
+        .description {
+            font-size: 16px;
+            color: #777;
+            line-height: 1.6;
+            max-width: 400px;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background-color: #8a6d3b;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            width: fit-content;
+            box-shadow: 0 5px 15px rgba(138, 109, 59, 0.2);
+        }
+        
+        .btn:hover {
+            background-color: #6b5429;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(138, 109, 59, 0.3);
+        }
+        
+        .visual {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shape-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .shape-1 {
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(45deg, #e0d3b8 0%, #d4c5a8 100%);
+            border-radius: 50%;
+            transform: rotate(15deg);
+        }
+        
+        .shape-2 {
+            position: absolute;
+            bottom: -150px;
+            right: 100px;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, #c9b999 0%, #b8a885 100%);
+            border-radius: 50%;
+            transform: rotate(-10deg);
+        }
+        
+        .shape-3 {
+            position: absolute;
+            top: 50%;
+            right: 200px;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, #a08e6c 0%, #8a6d3b 100%);
+            border-radius: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .furniture {
+            position: absolute;
+            top: 50%;
+            right: 150px;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .furniture-content {
+            width: 80%;
+            height: 80%;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .furniture-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #8a6d3b;
+            margin-bottom: 10px;
+        }
+        
+        .furniture-desc {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 992px) {
+            .banner {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .content {
+                padding: 40px 30px;
+            }
+            
+            .visual {
+                height: 300px;
+            }
+            
+            .furniture {
+                right: 50%;
+                transform: translate(50%, -50%);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 36px;
+            }
+            
+            h2 {
+                font-size: 24px;
+            }
+            
+            .furniture {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <div class="content">
+            <div class="tagline">Welcome To Home Interior</div>
+            <h1>Modern Design</h1>
+            <h2>for Every Home</h2>
+            <p class="description">Cubilla sem praesent euismod sociosqu est volutpat leo ultricet.</p>
+            <a href="#" class="btn">Explore Now</a>
+        </div>
+        <div class="visual">
+            <div class="shape-container">
+                <div class="shape-1"></div>
+                <div class="shape-2"></div>
+                <div class="shape-3"></div>
+            </div>
+            <div class="furniture">
+                <div class="furniture-content">
+                    <div class="furniture-title">Modern Living</div>
+                    <p class="furniture-desc">Elegant furniture for contemporary spaces</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
