@@ -82,17 +82,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="password" name="confirmar" required>
       </div>
       <button type="submit" class="btn-register">Registrarse</button>
+      <button type="submit" class="btn-register">Registrarse Como Empleado</button>
     </form>
 
     <p class="signup-link">¿Ya tienes una cuenta? <a href="login.php">Inicia Sesión</a></p>
+
+      
   </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
