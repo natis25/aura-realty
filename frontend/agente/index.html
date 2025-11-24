@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Agente</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body { min-height: 100vh; display: flex; }
+#sidebar { width: 220px; background: #343a40; color: #fff; }
+#sidebar a { color: #fff; text-decoration: none; }
+#sidebar a.active { background: #495057; }
+#main { flex: 1; padding: 20px; }
+.logout-btn { margin-top: auto; }
+</style>
+</head>
+<body>
+  <script src="/TALLER/aura-realty/frontend/js/session.js"></script>
+<!-- si tienes un auth.js separado, puede cargarse después -->
+<script src="/TALLER/aura-realty/frontend/js/auth.js"></script>
+
+<div id="sidebar" class="d-flex flex-column p-3">
+  <h4 class="mb-4">Agente Dashboard</h4>
+  <ul class="nav flex-column mb-4">
+    <li><a href="solicitudes.html" class="nav-link">Solicitudes</a></li>
+    <li><a href="citas.html" class="nav-link">Citas</a></li>
+  </ul>
+  <!-- Botón de logout -->
+  <button id="logoutBtn" class="btn btn-danger logout-btn">
+      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </button>
+</div>
+
+<div id="main">
+  <h3>Bienvenido Agente</h3>
+  <p>Revisa tus solicitudes y citas asignadas desde el menú lateral.</p>
+</div>
+
+<script>
+// Solo agentes
+checkAuth("agente");
+</script>
+
+<script>
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("user");
+      window.location.href = "/TALLER/aura-realty/frontend/login.html";
+  });
+</script>
+
+</body>
+</html>

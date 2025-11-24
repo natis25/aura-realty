@@ -1,0 +1,2340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura — Tu Hogar Ideal</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <!-- Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <!-- FontAwesome para iconos de filtros -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0C2340;
+      --accent: #f5b341;
+      --white: #FFFFFF;
+      --light: #03035c;
+      --dark: #1C1C1C;
+      --secondary: #03035c;
+      --highlight: #FFD166;
+      --cta: #f7c923; /* Color para el botón Agendar Cita */
+      --gradient: linear-gradient(135deg, #0C2340 0%, #1C3A5F 100%);
+      --gradient-accent: linear-gradient(135deg, #f2d29a 0%, #f6b430 100%);
+      --transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+
+    * {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+    }
+
+    /* ===== NUEVA BARRA DE NAVEGACIÓN MEJORADA ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 px 30px rgba(0, 0, 0, 0.1);
+      padding: 1.1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      transition: var(--transition);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar.scrolled {
+      padding: 0.8rem 2rem;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Navbar transformado en icono flotante */
+    .navbar.floating {
+      width: 60px;
+      height: 60px;
+      padding: 0;
+      border-radius: 50%;
+      top: 20px;
+      left: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      transform: scale(0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--primary);
+    }
+
+    .navbar.floating .nav-container,
+    .navbar.floating .logo {
+      display: none;
+    }
+
+    .floating-icon {
+      display: none;
+      font-size: 1.5rem;
+      color: var(--white);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .navbar.floating .floating-icon {
+      display: block;
+    }
+
+    .floating-icon:hover {
+      transform: scale(1.2);
+      color: var(--accent);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.8rem;
+      position: relative;
+      overflow: hidden;
+      padding: 0.5rem;
+    }
+
+    .logo span {
+      display: inline-block;
+      transition: var(--transition);
+    }
+
+    .logo:hover span {
+      transform: translateY(-5px);
+      color: var(--accent);
+    }
+
+    .logo i {
+      margin-right: 10px;
+      color: var(--accent);
+      font-size: 2rem;
+      transition: var(--transition);
+    }
+
+    .logo:hover i {
+      transform: rotate(15deg) scale(1.2);
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: var(--accent);
+      transition: var(--transition);
+    }
+
+    .logo:hover::after {
+      width: 100%;
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      justify-content: center;
+    }
+
+    .main-menu {
+      display: flex;
+      list-style: none;
+      margin: 0 auto;
+      align-items: center;
+    }
+
+    .main-menu li {
+      margin: 0 1.2rem;
+      position: relative;
+    }
+
+    .main-menu a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 8px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+    }
+
+    .main-menu a i {
+      margin-right: 8px;
+      font-size: 1.2rem;
+      color: var(--accent);
+    }
+
+    .main-menu a::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(245, 179, 65, 0.2), transparent);
+      transition: left 0.7s;
+    }
+
+    .main-menu a:hover::before {
+      left: 100%;
+    }
+
+    .main-menu a:hover {
+      background: rgba(245, 179, 65, 0.1);
+      color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .submenu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      min-width: 240px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      padding: 1rem 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.9);
+      transition: var(--transition);
+      z-index: 100;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .main-menu li:hover .submenu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(10px) scale(1);
+    }
+
+    .submenu li {
+      margin: 0;
+      padding: 0;
+    }
+
+    .submenu a {
+      padding: 0.8rem 1.5rem;
+      font-weight: 500;
+      font-size: 1rem;
+      color: var(--primary);
+      display: block;
+      border-radius: 0;
+      transform: none;
+    }
+
+    .submenu a:hover {
+      background: rgba(245, 179, 65, 0.1);
+      color: var(--accent);
+      transform: translateX(10px);
+    }
+
+    .submenu a i {
+      font-size: 0.9rem;
+    }
+
+    /* Botón Agendar Cita - CIRCULAR */
+    .appointment-btn {
+      background: var(--cta);
+      color: white;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      font-weight: 600;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-left: 1rem;
+      box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .appointment-btn:hover {
+      background: #27ae60;
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 6px 15px rgba(46, 204, 113, 0.4);
+    }
+
+    .appointment-btn i {
+      margin: 0;
+    }
+
+    .appointment-text {
+      display: none;
+    }
+
+    /* Botón de menú móvil */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .menu-toggle span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background-color: var(--primary);
+      border-radius: 3px;
+      transition: var(--transition);
+    }
+
+    .menu-toggle.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Menú lateral izquierdo */
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -400px;
+      width: 350px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      box-shadow: 5px 0 25px rgba(0, 0, 0, 0.15);
+      padding: 3rem 2rem;
+      transition: var(--transition);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .side-menu.active {
+      left: 0;
+    }
+
+    .side-menu .close-btn {
+      align-self: flex-end;
+      font-size: 1.5rem;
+      color: var(--primary);
+      cursor: pointer;
+      margin-bottom: 2rem;
+      transition: var(--transition);
+    }
+
+    .side-menu .close-btn:hover {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+
+    .side-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .side-section h3 {
+      font-size: 1.2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .side-links {
+      list-style: none;
+    }
+
+    .side-links li {
+      margin-bottom: 0.8rem;
+    }
+
+    .side-links a {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 500;
+      transition: var(--transition);
+      display: block;
+      padding: 0.3rem 0;
+    }
+
+    .side-links a:hover {
+      color: var(--accent);
+      transform: translateX(5px);
+    }
+
+    .side-content {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: rgba(245, 179, 65, 0.1);
+      border-radius: 8px;
+    }
+
+    .side-content h4 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    .side-content p {
+      color: var(--primary);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      opacity: 0.8;
+    }
+
+    /* Overlay para el menú lateral */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      display: none;
+    }
+
+    .overlay.active {
+      display: block;
+    }
+
+    /* Ajuste para el contenido debajo del navbar fijo */
+    .content-adjustment {
+      margin-top: 100px;
+    }
+
+    /* ===== SECCIÓN PROPERTIES - MEJORADA ===== */
+    #properties {
+      padding: 100px 0 150px;
+      position: relative;
+      z-index: 5;
+      background: linear-gradient(to bottom, #0f025e 0%, #0f025e 50%, #ffffff 50%, #ffffff 100%);
+    }
+
+    #properties h2 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 3rem;
+      text-align: center;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+
+    /* ===== CARRUSEL DE PROPIEDADES - MEJORADO ===== */
+    .properties-carousel {
+      position: relative;
+      padding: 0 80px;
+      margin-top: 2rem;
+    }
+
+    .carousel-container {
+      overflow: hidden;
+      position: relative;
+      padding: 20px 0;
+    }
+
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+      gap: 30px;
+    }
+
+    .property-card {
+      flex: 0 0 calc(33.333% - 20px);
+      min-width: calc(33.333% - 20px);
+      overflow: hidden;
+      position: relative;
+      transition: all 0.4s ease;
+      background: var(--white);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      border: none;
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+
+    .property-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+
+    .property-card .image-container {
+      position: relative;
+      height: 250px;
+      overflow: hidden;
+    }
+
+    .property-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .property-card:hover img {
+      transform: scale(1.08);
+    }
+
+    .property-card .badge-status {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: var(--accent);
+      color: var(--primary);
+      font-weight: 600;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .property-card .card-body {
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .property-card .card-body h5 {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .property-card .text-muted i {
+      color: var(--accent);
+    }
+
+    .property-details {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .property-details span {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .property-details i {
+      color: var(--accent);
+      margin-right: 8px;
+      font-size: 1rem;
+    }
+
+    .price {
+      font-weight: 800;
+      color: var(--accent);
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .btn {
+      background-color: var(--accent);
+      color: var(--primary);
+      border: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      padding: 12px 25px;
+      margin-top: auto;
+      width: 100%;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary);
+      color: var(--white);
+    }
+
+    /* Flechas del carrusel - MEJORADAS */
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 60px;
+      height: 60px;
+      background: var(--white);
+      border: none;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--primary);
+      cursor: pointer;
+      transition: var(--transition);
+      z-index: 10;
+    }
+
+    .carousel-arrow:hover {
+      background: var(--accent);
+      color: var(--white);
+      transform: translateY(-50%) scale(1.1);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .carousel-arrow.prev {
+      left: 0;
+    }
+
+    .carousel-arrow.next {
+      right: 0;
+    }
+
+    /* Indicadores del carrusel - MEJORADOS */
+    .carousel-indicators {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .carousel-indicator {
+      width: 14px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.5);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .carousel-indicator.active {
+      background: var(--accent);
+      transform: scale(1.3);
+    }
+
+    /* ===== SECCIÓN SOBRE NOSOTROS ===== */
+    .about {
+      display: flex;
+      gap: 6%;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 8%;
+      max-width: 1600px;
+      margin: auto;
+      background-color: #fff;
+    }
+
+    /* Imagen izquierda */
+    .about .left {
+      flex: 0 0 48%;
+      position: relative;
+      height: 640px;
+      overflow: hidden;
+      border-radius: 10px;
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 1s ease;
+    }
+    .about .left img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.5s ease, opacity 0.8s ease;
+    }
+    .about .left:hover img {
+      transform: scale(1.05);
+    }
+
+    /* Contenido derecho */
+    .about .right {
+      flex: 1;
+      padding: 10px 0;
+      min-height: 640px;
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 1s ease;
+    }
+
+    .about.visible .left,
+    .about.visible .right {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .title {
+      font-size: 56px;
+      line-height: 1.05;
+      font-weight: 900;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .lead {
+      color: #555;
+      font-size: 16px;
+      line-height: 1.7;
+      max-width: 580px;
+      margin-bottom: 28px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 40px;
+      align-items: flex-end;
+      border-bottom: 1px solid #e6e6e6;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .tabs button {
+      background: none;
+      border: none;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 16px;
+      padding: 8px 0;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .tabs button:hover { color: var(--accent); }
+    .tabs button.active {
+      color: var(--accent);
+    }
+    .tabs button.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -18px;
+      width: 40px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* Texto y subimagen */
+    .tab-body {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .tab-body.fade {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+
+    .tab-body .text {
+      flex: 1;
+    }
+    .tab-body p {
+      color: #5c5c5c;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 22px 0;
+    }
+    .features li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      color: #444;
+      font-size: 15px;
+    }
+    .features .ico {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* Subimagen */
+    .subimg-wrap {
+      flex: 0 0 260px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .subimg {
+      width: 240px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      transition: transform 1s ease;
+    }
+    .subimg img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .subimg:hover {
+      transform: scale(1.04);
+    }
+
+    /* Responsivo */
+    @media (max-width: 1100px) {
+      .title { font-size: 44px; }
+      .about { flex-direction: column; padding: 60px 6%; }
+      .about .left, .about .right { width: 100%; height: auto; }
+      .tab-body { flex-direction: column; }
+      .subimg-wrap { justify-content: flex-start; }
+    }
+
+    /* ===== NUEVAS SECCIONES CON ANIMACIONES ===== */
+    
+    /* Sección Servicios - Animación de deslizamiento */
+    .services-section {
+      padding: 100px 0;
+      background: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-card {
+      background: var(--white);
+      border-radius: 15px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      transition: all 0.5s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      opacity: 0;
+      transform: translateY(50px);
+    }
+
+    .service-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .service-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .service-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2rem;
+      color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .service-card:hover .service-icon {
+      transform: scale(1.1) rotate(10deg);
+    }
+
+    /* Sección Testimonios - Animación de fade in escalonado */
+    .testimonials-section {
+      padding: 100px 0;
+      background: var(--gradient);
+      color: var(--white);
+      position: relative;
+    }
+
+    .testimonial-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      margin: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.6s ease;
+    }
+
+    .testimonial-card.animate {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .testimonial-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.05);
+    }
+
+    .client-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+    }
+
+    .stars {
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    /* Sección Proceso - Animación de línea de tiempo */
+    .process-section {
+      padding: 100px 0;
+      background: var(--light);
+    }
+
+    .process-step {
+      position: relative;
+      padding: 2rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: all 0.8s ease;
+    }
+
+    .process-step.animate {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .process-step:nth-child(even) {
+      transform: translateX(50px);
+    }
+
+    .process-step:nth-child(even).animate {
+      transform: translateX(0);
+    }
+
+    .step-number {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .process-connector {
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: var(--accent);
+      opacity: 0.3;
+      z-index: 1;
+    }
+
+    /* Sección Agentes - Animación de tarjetas flotantes */
+    .agents-section {
+      padding: 100px 0;
+      background: var(--white);
+    }
+
+    .agent-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      transition: all 0.5s ease;
+      opacity: 0;
+      transform: translateY(30px) rotate(3deg);
+    }
+
+    .agent-card.animate {
+      opacity: 1;
+      transform: translateY(0) rotate(0);
+    }
+
+    .agent-card:hover {
+      transform: translateY(-10px) rotate(0);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+
+    .agent-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .agent-card:hover .agent-image {
+      transform: scale(1.1);
+    }
+
+    .agent-info {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .social-links a {
+      width: 40px;
+      height: 40px;
+      background: var(--light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      transition: var(--transition);
+    }
+
+    .social-links a:hover {
+      background: var(--accent);
+      color: var(--white);
+      transform: translateY(-3px);
+    }
+
+    /* Sección Blog - Animación de aparición con delay */
+    .blog-section {
+      padding: 100px 0;
+      background: var(--gradient);
+      color: var(--white);
+    }
+
+    .blog-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      transition: all 0.5s ease;
+      opacity: 0;
+      transform: scale(0.8);
+    }
+
+    .blog-card.animate {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .blog-card:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .blog-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .blog-content {
+      padding: 1.5rem;
+    }
+
+    .blog-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    .read-more {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .read-more:hover {
+      color: var(--white);
+    }
+
+    /* ===== ESTILOS EXISTENTES DE LA PÁGINA ===== */
+
+    /* HERO - MEJORADO */
+    .banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 85vh;
+      background-color: #0f025e;
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .banner-content {
+      width: 50%;
+      padding: 0 6%;
+      z-index: 3;
+      margin-top: -30px;
+    }
+
+    .banner h5 {
+      color: #8c8dd6;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .banner h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin: 20px 0;
+      color: #fff;
+    }
+
+    .banner p {
+      color: #cfcfcf;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .banner .btn-explore {
+      background-color: #b38b59;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .banner .btn-explore:hover {
+      background-color: #8f6b3e;
+      transform: scale(1.05);
+    }
+
+    /* Estadísticas movidas debajo del botón */
+    .banner-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 40px;
+    }
+
+    .banner-stats div {
+      text-align: left;
+    }
+
+    .banner-stats span {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .banner-stats small {
+      color: #cfcfcf;
+      font-size: 0.9rem;
+    }
+
+    .banner-image {
+      width: 60%;
+      height: 100%;
+      position: relative;
+      clip-path: polygon(20% 0, 100% 0, 100% 100%, 20% 100%, 0 50%);
+      overflow: hidden;
+      transition: all 0.5s ease;
+    }
+
+    /* Flechas superpuestas con puntas desiguales y distintos colores */
+
+    /* Flecha 1: principal, café/dorado */
+    .banner-image::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      clip-path: polygon(20% 0, 100% 0, 100% 100%, 22% 100%, 0 57%, 6% 50%, 0 43%);
+      background: linear-gradient(135deg, #08025f 0%, #d6b48c 20%, #8f6b3e 50%, #d6b48c 80%, #b38b59 100%);
+      z-index: 1;
+      mix-blend-mode: overlay;
+      transition: transform 0.8s ease;
+    }
+
+    /* Flecha 2: secundaria, naranja/amarillo */
+    .banner-image::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      clip-path: polygon(25% 0, 100% 0, 100% 100%, 28% 100%, 0 54%, 8% 50%, 0 46%);
+      background: linear-gradient(145deg, rgba(1, 5, 105, 0.5) 0%, rgba(255,215,0,0.5) 50%, rgba(255,165,0,0.5) 100%);
+      z-index: 2;
+      mix-blend-mode: overlay;
+      transition: transform 0.8s ease;
+    }
+
+    /* Flecha 3: adicional, violeta/rosa */
+    .banner-image .arrow-extra {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      clip-path: polygon(18% 0, 100% 0, 100% 100%, 20% 100%, 0 55%, 5% 50%, 0 45%);
+      background: linear-gradient(120deg, rgba(200,150,255,0.4) 0%, rgba(255,100,180,0.3) 50%, rgba(200,150,255,0.4) 100%);
+      z-index: 3;
+      mix-blend-mode: overlay;
+      transition: transform 0.8s ease;
+    }
+
+    .banner-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.05);
+      position: relative;
+      z-index: 4;
+      transition: transform 0.8s ease;
+    }
+
+    .banner-image:hover img {
+      transform: scale(1.15);
+    }
+
+    .banner-image:hover::before {
+      transform: scale(1.05) rotate(3deg);
+    }
+
+    .banner-image:hover::after {
+      transform: scale(1.05) rotate(5deg);
+    }
+
+    .banner-image:hover .arrow-extra {
+      transform: scale(1.05) rotate(-3deg);
+    }
+
+    @media (max-width: 992px) {
+      .banner {
+        flex-direction: column;
+        height: auto;
+      }
+      .banner-content, .banner-image {
+        width: 100%;
+        clip-path: none;
+        text-align: center;
+      }
+      .banner h1 {
+        font-size: 2.3rem;
+      }
+      .banner p {
+        font-size: 1rem;
+      }
+      .banner-image::before,
+      .banner-image::after,
+      .banner-image .arrow-extra {
+        display: none;
+      }
+      .banner-stats {
+        justify-content: center;
+        gap: 30px;
+      }
+    }
+
+    /* FILTROS MEJORADOS */
+    .search-bar {
+      background: var(--white);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      border-radius: 20px;
+      padding: 25px;
+      margin-top: -60px;
+      position: relative;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    .search-bar:hover {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    }
+
+    .search-bar input,
+    .search-bar select {
+      border: none;
+      border-radius: 12px;
+      height: 50px;
+      padding-left: 45px;
+      background: #F9FAFB;
+      box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus,
+    .search-bar select:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(245, 179, 65, 0.3);
+      background: #fff;
+    }
+
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-50%);
+      color: #6B7280;
+      pointer-events: none;
+      font-size: 18px;
+    }
+
+    .search-bar button {
+      background: var(--gradient-accent);
+      border: none;
+      border-radius: 12px;
+      color: var(--primary);
+      font-weight: 600;
+      height: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .search-bar button:hover {
+      background: var(--accent);
+      color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    @media(max-width:768px){
+      .search-bar {
+        padding: 20px;
+      }
+      .search-bar input,
+      .search-bar select {
+        height: 45px;
+        padding-left: 40px;
+      }
+      .input-icon {
+        font-size: 16px;
+      }
+    }
+
+    /* FOOTER */
+    footer {
+      background-color: var(--primary);
+      color: var(--white);
+      padding: 50px 0 20px;
+    }
+
+    footer h5 {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    footer a {
+      color: var(--white);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--accent);
+    }
+
+    footer .social-icons i {
+      font-size: 1.5rem;
+      margin-right: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    footer .social-icons i:hover {
+      color: var(--accent);
+    }
+
+    /* Media queries para responsividad */
+    @media (max-width: 1200px) {
+      .main-menu li {
+        margin: 0 0.8rem;
+      }
+      .property-card {
+        flex: 0 0 calc(50% - 15px);
+        min-width: calc(50% - 15px);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .main-menu {
+        display: none;
+      }
+
+      .appointment-btn {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
+
+      .banner h1 {
+        font-size: 3rem;
+      }
+      
+      .property-card {
+        flex: 0 0 calc(50% - 15px);
+        min-width: calc(50% - 15px);
+      }
+      
+      .properties-carousel {
+        padding: 0 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 1rem;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+      }
+
+      .banner h1 {
+        font-size: 2.5rem;
+      }
+
+      .banner p {
+        font-size: 1.1rem;
+      }
+
+      #properties h2 {
+        font-size: 2.2rem;
+      }
+      
+      .property-card {
+        flex: 0 0 100%;
+        min-width: 100%;
+      }
+      
+      .properties-carousel {
+        padding: 0 20px;
+      }
+      
+      .carousel-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- NUEVA BARRA DE NAVEGACIÓN MEJORADA -->
+  <nav class="navbar">
+    <a href="#" class="logo">
+      <i class="fas fa-building"></i>
+      <span>AURA REALTY</span>
+    </a>
+
+    <div class="nav-container">
+      <ul class="main-menu">
+        <li>
+          <a href="#"><i class="fas fa-home"></i> Inicio</a>
+        </li>
+        <li>
+          <a href="#"><i class="fas fa-tag"></i> Compra</a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-house-user"></i> Casas</a></li>
+            <li><a href="#"><i class="fas fa-building"></i> Departamentos</a></li>
+            <li><a href="#"><i class="fas fa-mountain"></i> Terrenos</a></li>
+            <li><a href="#"><i class="fas fa-city"></i> Oficinas</a></li>
+            <li><a href="#"><i class="fas fa-crown"></i> Propiedades exclusivas</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#"><i class="fas fa-key"></i> Alquiler</a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-couch"></i> Residencial</a></li>
+            <li><a href="#"><i class="fas fa-store"></i> Comercial</a></li>
+            <li><a href="#"><i class="fas fa-umbrella-beach"></i> Vacacional</a></li>
+            <li><a href="#"><i class="fas fa-calendar-alt"></i> Temporada larga</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#"><i class="fas fa-concierge-bell"></i> Servicios</a>
+          <ul class="submenu">
+            <li><a href="#"><i class="fas fa-balance-scale"></i> Tasaciones</a></li>
+            <li><a href="#"><i class="fas fa-piggy-bank"></i> Asesoría financiera</a></li>
+            <li><a href="#"><i class="fas fa-hand-holding-usd"></i> Gestión de alquileres</a></li>
+            <li><a href="#"><i class="fas fa-user-tie"></i> Consultoría inmobiliaria</a></li>
+          </ul>
+        </li>
+
+        <li style="margin-left: 0.5rem;">
+          <a href="agendar_cita.php">
+          <button class="appointment-btn" title="Agendar Cita">
+            <i class="fas fa-calendar-check"></i>
+            <span class="appointment-text">Agendar Cita</span>
+          </button>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="floating-icon">
+      <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="menu-toggle" id="mobile-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </nav>
+
+  <!-- Menú lateral izquierdo -->
+  <div class="side-menu">
+    <div class="close-btn">
+      <i class="fas fa-times"></i>
+    </div>
+    
+    <div class="side-section">
+      <h3>AURA Realty</h3>
+      <ul class="side-links">
+        <li><a href="#">Inicio</a></li>
+        <li><a href="#">Compra</a></li>
+        <li><a href="#">Venta</a></li>
+        <li><a href="#">Alquiler</a></li>
+        <li><a href="#">Servicios</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </div>
+    
+    <div class="side-section">
+      <h3>Sobre Nosotros</h3>
+      <div class="side-content">
+        <h4>Especialistas en bienes raíces</h4>
+        <p>Más de 20 años de experiencia en el mercado inmobiliario, ofreciendo las mejores propiedades y servicios personalizados.</p>
+      </div>
+    </div>
+    
+    <div class="side-section">
+      <h3>Propiedades Destacadas</h3>
+      <ul class="side-links">
+        <li><a href="#">Casa en la playa</a></li>
+        <li><a href="#">Departamento céntrico</a></li>
+        <li><a href="#">Oficina corporativa</a></li>
+        <li><a href="#">Terreno residencial</a></li>
+      </ul>
+    </div>
+    
+    <div class="side-section">
+      <h3>Recursos</h3>
+      <ul class="side-links">
+        <li><a href="#">Blog inmobiliario</a></li>
+        <li><a href="#">Calculadora de hipotecas</a></li>
+        <li><a href="#">Guía de compra</a></li>
+        <li><a href="#">Preguntas frecuentes</a></li>
+      </ul>
+    </div>
+    
+    <button class="appointment-btn" style="margin-top: 1rem; width: auto; height: auto; padding: 1rem 1.5rem; border-radius: 8px;">
+      <i class="fas fa-calendar-check"></i> 
+      <span style="margin-left: 8px;">Agendar Cita</span>
+    </button>
+  </div>
+
+  <!-- Overlay para el menú lateral -->
+  <div class="overlay"></div>
+
+  <!-- HERO MEJORADO -->
+  <section class="banner content-adjustment">
+    <div class="banner-content">
+      <h5>Bienvenido a Aura Realty</h5>
+      <h1>Diseños Modernos<br>para Cada Hogar</h1>
+      <p>Explora espacios creados con armonía, confort y elegancia. Encuentra el lugar donde tus sueños toman forma.</p>
+      <button class="btn-explore">Explorar Ahora</button>
+      
+      <!-- Estadísticas movidas debajo del botón -->
+      <div class="banner-stats">
+        <div><span>1200+</span><br><small>Listed Properties</small></div>
+        <div><span>4500+</span><br><small>Happy Customers</small></div>
+        <div><span>100+</span><br><small>Awards</small></div>
+      </div>
+    </div>
+
+    <div class="banner-image">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80" alt="Interior moderno">
+      <div class="arrow-extra"></div> <!-- Flecha extra superpuesta -->
+    </div>
+  </section>
+
+  <!-- SEARCH BAR MEJORADO -->
+  <div class="container search-bar">
+    <div class="row g-3 align-items-center">
+      <div class="col-md-4 position-relative">
+        <input type="text" class="form-control" placeholder="Location">
+        <i class="fas fa-map-marker-alt input-icon"></i>
+      </div>
+      <div class="col-md-3 position-relative">
+        <select class="form-select">
+          <option selected>Property Type</option>
+          <option>Apartment</option>
+          <option>Villa</option>
+          <option>House</option>
+        </select>
+        <i class="fas fa-home input-icon"></i>
+      </div>
+      <div class="col-md-3 position-relative">
+        <input type="number" class="form-control" placeholder="Budget">
+        <i class="fas fa-dollar-sign input-icon"></i>
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn search-btn"><i class="fas fa-search me-2"></i> Search</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTIES CARRUSEL - MEJORADO CON FONDO DEGRADADO Y TARJETAS ELEGANTES -->
+  <section id="properties">
+    <div class="container">
+      <h2>Propiedades Destacadas</h2>
+      <div class="properties-carousel">
+        <button class="carousel-arrow prev">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <div class="carousel-container">
+          <div class="carousel-track" id="carousel-track">
+            <!-- Card 1 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c" alt="Propiedad 1">
+                <span class="badge-status">En Venta</span>
+              </div>
+              <div class="card-body">
+                <h5>Residencia Moderna</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> San Miguel, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>4 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>250 m²</span>
+                  <span><i class="bi bi-car-front"></i>2 garajes</span>
+                </div>
+                <p class="price">$250,000</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be" alt="Propiedad 2">
+                <span class="badge-status">En Alquiler</span>
+              </div>
+              <div class="card-body">
+                <h5>Apartamento Urbano</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Sopocachi, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>2 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>90 m²</span>
+                  <span><i class="bi bi-car-front"></i>1 garaje</span>
+                </div>
+                <p class="price">$650 / mes</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c" alt="Propiedad 3">
+                <span class="badge-status">Destacado</span>
+              </div>
+              <div class="card-body">
+                <h5>Casa Familiar</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Calacoto, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>3 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>180 m²</span>
+                  <span><i class="bi bi-car-front"></i>2 garajes</span>
+                </div>
+                <p class="price">$190,000</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90" alt="Propiedad 4">
+                <span class="badge-status">En Venta</span>
+              </div>
+              <div class="card-body">
+                <h5>Penthouse de Lujo</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Zona Sur, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>3 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>200 m²</span>
+                  <span><i class="bi bi-car-front"></i>2 garajes</span>
+                </div>
+                <p class="price">$420,000</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00" alt="Propiedad 5">
+                <span class="badge-status">En Alquiler</span>
+              </div>
+              <div class="card-body">
+                <h5>Loft Industrial</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Centro, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>1 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>75 m²</span>
+                  <span><i class="bi bi-car-front"></i>1 garaje</span>
+                </div>
+                <p class="price">$480 / mes</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="property-card">
+              <div class="image-container">
+                <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994" alt="Propiedad 6">
+                <span class="badge-status">Destacado</span>
+              </div>
+              <div class="card-body">
+                <h5>Villa con Jardín</h5>
+                <p class="text-muted mb-2"><i class="bi bi-geo-alt"></i> Achumani, La Paz</p>
+                <div class="property-details mb-3">
+                  <span><i class="bi bi-house-door"></i>4 hab</span>
+                  <span><i class="bi bi-aspect-ratio"></i>280 m²</span>
+                  <span><i class="bi bi-car-front"></i>3 garajes</span>
+                </div>
+                <p class="price">$320,000</p>
+                <button class="btn"><i class="bi bi-calendar-check"></i> Reservar Visita</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button class="carousel-arrow next">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <div class="carousel-indicators" id="carousel-indicators">
+          <!-- Los indicadores se generan automáticamente con JavaScript -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN SOBRE NOSOTROS INTEGRADA -->
+  <section class="about" id="about">
+    <div class="left">
+      <img id="mainImage" src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80" alt="Casa moderna con arquitectura elegante">
+    </div>
+
+    <div class="right">
+      <div class="meta">Sobre Nosotros</div>
+      <h1 class="title">Te brindamos la mejor<br>experiencia inmobiliaria.</h1>
+      <p class="lead">
+        Nuestra inmobiliaria ofrece viviendas modernas, elegantes y con diseños innovadores que transforman la forma de vivir.
+      </p>
+
+      <div class="tabs">
+        <button class="active" data-tab="arquitectura">Arquitectura</button>
+        <button data-tab="interior">Diseño Interior</button>
+        <button data-tab="3d">Diseño 3D</button>
+      </div>
+
+      <div class="tab-body" id="tabContent">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN: SERVICIOS ESPECIALIZADOS -->
+  <section class="services-section" id="services">
+    <div class="container">
+      <div class="row text-center mb-5">
+        <div class="col-12">
+          <h2 class="display-5 fw-bold text-primary">Nuestros Servicios Especializados</h2>
+          <p class="lead text-muted">Ofrecemos soluciones integrales para todas tus necesidades inmobiliarias</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="service-card" data-animation="slide-up">
+            <div class="service-icon">
+              <i class="fas fa-home"></i>
+            </div>
+            <h4>Venta de Propiedades</h4>
+            <p>Asesoramiento profesional para la compra y venta de inmuebles residenciales y comerciales.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="service-card" data-animation="slide-up" data-delay="200">
+            <div class="service-icon">
+              <i class="fas fa-key"></i>
+            </div>
+            <h4>Gestión de Alquileres</h4>
+            <p>Administración completa de propiedades en alquiler, desde la búsqueda de inquilinos hasta el mantenimiento.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="service-card" data-animation="slide-up" data-delay="400">
+            <div class="service-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <h4>Tasaciones Profesionales</h4>
+            <p>Valuación precisa de propiedades basada en análisis de mercado y condiciones actuales.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN: TESTIMONIOS DE CLIENTES -->
+  <section class="testimonials-section" id="testimonials">
+    <div class="container">
+      <div class="row text-center mb-5">
+        <div class="col-12">
+          <h2 class="display-5 fw-bold text-white">Lo que Dicen Nuestros Clientes</h2>
+          <p class="lead text-light">Experiencias reales de quienes confiaron en nosotros</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="testimonial-card" data-animation="scale">
+            <div class="d-flex align-items-center mb-3">
+              <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" alt="Cliente" class="client-avatar">
+              <div class="ms-3">
+                <h5 class="mb-0 text-white">María González</h5>
+                <small class="text-light">Compradora</small>
+              </div>
+            </div>
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="text-light">"Encontré mi hogar ideal gracias al equipo de Aura. Su profesionalismo y dedicación hicieron que el proceso fuera sencillo y sin estrés."</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="testimonial-card" data-animation="scale" data-delay="200">
+            <div class="d-flex align-items-center mb-3">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" alt="Cliente" class="client-avatar">
+              <div class="ms-3">
+                <h5 class="mb-0 text-white">Carlos Rodríguez</h5>
+                <small class="text-light">Inversionista</small>
+              </div>
+            </div>
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="text-light">"Excelente asesoramiento para mis inversiones inmobiliarias. El conocimiento del mercado que tienen es impresionante."</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="testimonial-card" data-animation="scale" data-delay="400">
+            <div class="d-flex align-items-center mb-3">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" alt="Cliente" class="client-avatar">
+              <div class="ms-3">
+                <h5 class="mb-0 text-white">Ana Martínez</h5>
+                <small class="text-light">Arrendadora</small>
+              </div>
+            </div>
+            <div class="stars">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="text-light">"Llevo 3 años confiando la gestión de mis propiedades a Aura. Siempre profesionales, puntuales y con excelentes resultados."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN: AGENTES ESPECIALIZADOS + proceso de compra-->
+  <section class="agents-section" id="agents">
+    <div class="container">
+      <div class="row text-center mb-5">
+        <div class="col-12">
+          <h2 class="display-5 fw-bold text-primary">Nuestros Agentes Especializados</h2>
+          <p class="lead text-muted">Profesionales con amplia experiencia en el mercado inmobiliario</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="agent-card" data-animation="rotate">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&h=300&fit=crop" alt="Agente" class="agent-image">
+            <div class="agent-info">
+              <h4>Laura Mendieta</h4>
+              <p class="text-muted">Especialista en Propiedades Residenciales</p>
+              <p>+5 años de experiencia ayudando a familias a encontrar su hogar ideal.</p>
+              <div class="social-links">
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="agent-card" data-animation="rotate" data-delay="200">
+            <img src="https://images.unsplash.com/photo-1556157382-97eda3acf50b?w=400&h=300&fit=crop" alt="Agente" class="agent-image">
+            <div class="agent-info">
+              <h4>Diego Herrera</h4>
+              <p class="text-muted">Especialista en Propiedades Comerciales</p>
+              <p>Experto en inversiones y desarrollo de proyectos comerciales.</p>
+              <div class="social-links">
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="agent-card" data-animation="rotate" data-delay="400">
+            <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop" alt="Agente" class="agent-image">
+            <div class="agent-info">
+              <h4>Sofía Ríos</h4>
+              <p class="text-muted">Especialista en Propiedades de Lujo</p>
+              <p>Conectando clientes exclusivos con propiedades premium desde 2018.</p>
+              <div class="social-links">
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NUEVA SECCIÓN: BLOG Y NOTICIAS -->
+  <section class="blog-section" id="blog">
+    <div class="container">
+      <div class="row text-center mb-5">
+        <div class="col-12">
+          <h2 class="display-5 fw-bold text-white">Blog y Noticias</h2>
+          <p class="lead text-light">Mantente informado sobre el mercado inmobiliario</p>
+        </div>
+      </div>
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="blog-card" data-animation="scale-delay">
+            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=200&fit=crop" alt="Blog" class="blog-image">
+            <div class="blog-content">
+              <h5 class="text-white">Tendencias del Mercado Inmobiliario 2024</h5>
+              <div class="blog-meta text-light">
+                <span><i class="far fa-calendar"></i> 15 Mar, 2024</span>
+                <span><i class="far fa-clock"></i> 5 min lectura</span>
+              </div>
+              <p class="text-light">Analizamos las principales tendencias que están marcando el mercado inmobiliario este año.</p>
+              <a href="#" class="read-more">Leer más →</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="blog-card" data-animation="scale-delay" data-delay="200">
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=200&fit=crop" alt="Blog" class="blog-image">
+            <div class="blog-content">
+              <h5 class="text-white">Guía para Invertir en Bienes Raíces</h5>
+              <div class="blog-meta text-light">
+                <span><i class="far fa-calendar"></i> 28 Feb, 2024</span>
+                <span><i class="far fa-clock"></i> 7 min lectura</span>
+              </div>
+              <p class="text-light">Consejos prácticos para quienes desean comenzar a invertir en propiedades.</p>
+              <a href="#" class="read-more">Leer más →</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="blog-card" data-animation="scale-delay" data-delay="400">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=200&fit=crop" alt="Blog" class="blog-image">
+            <div class="blog-content">
+              <h5 class="text-white">Diseño de Interiores que Aumenta el Valor</h5>
+              <div class="blog-meta text-light">
+                <span><i class="far fa-calendar"></i> 12 Feb, 2024</span>
+                <span><i class="far fa-clock"></i> 4 min lectura</span>
+              </div>
+              <p class="text-light">Cómo pequeños cambios en el diseño pueden incrementar significativamente el valor de tu propiedad.</p>
+              <a href="#" class="read-more">Leer más →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container text-center text-md-start">
+      <div class="row">
+        <div class="col-md-4">
+          <h5>AURA</h5>
+          <p>Tu agencia de confianza para propiedades exclusivas y hogares soñados.</p>
+          <div class="social-icons mt-3">
+            <i class="bi bi-facebook"></i>
+            <i class="bi bi-instagram"></i>
+            <i class="bi bi-twitter"></i>
+            <i class="bi bi-linkedin"></i>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <h5>Compañía</h5>
+          <ul class="list-unstyled">
+            <li><a href="#">Sobre Nosotros</a></li>
+            <li><a href="#">Propiedades</a></li>
+            <li><a href="#">Agentes</a></li>
+            <li><a href="#">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h5>Soporte</h5>
+          <ul class="list-unstyled">
+            <li><a href="#">Preguntas Frecuentes</a></li>
+            <li><a href="#">Política de Privacidad</a></li>
+            <li><a href="#">Términos de Servicio</a></li>
+          </ul>
+        </div>
+        <div class="col-md-3">
+          <h5>Suscríbete</h5>
+          <p>Recibe novedades y ofertas exclusivas.</p>
+          <div class="input-group">
+            <input type="email" class="form-control" placeholder="Tu correo">
+            <button class="btn btn-find">Enviar</button>
+          </div>
+        </div>
+      </div>
+      <hr class="mt-4">
+      <p class="text-center">© 2025 Aura Realty. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Detectar scroll para cambiar el navbar
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 300) {
+        navbar.classList.add('floating');
+      } else {
+        navbar.classList.remove('floating');
+      }
+      
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Menú móvil
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mainMenu = document.querySelector('.main-menu');
+
+    mobileMenu.addEventListener('click', function() {
+      this.classList.toggle('active');
+      mainMenu.classList.toggle('active');
+      
+      if (mainMenu.classList.contains('active')) {
+        mainMenu.style.display = 'flex';
+        mainMenu.style.flexDirection = 'column';
+        mainMenu.style.position = 'absolute';
+        mainMenu.style.top = '100%';
+        mainMenu.style.left = '0';
+        mainMenu.style.width = '100%';
+        mainMenu.style.background = 'rgba(255, 255, 255, 0.98)';
+        mainMenu.style.backdropFilter = 'blur(10px)';
+        mainMenu.style.padding = '2rem';
+        mainMenu.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.15)';
+      } else {
+        mainMenu.style.display = 'none';
+      }
+    });
+
+    // Abrir y cerrar el menú lateral
+    const floatingIcon = document.querySelector('.floating-icon');
+    const sideMenu = document.querySelector('.side-menu');
+    const closeBtn = document.querySelector('.close-btn');
+    const overlay = document.querySelector('.overlay');
+
+    floatingIcon.addEventListener('click', function() {
+      sideMenu.classList.add('active');
+      overlay.classList.add('active');
+    });
+
+    closeBtn.addEventListener('click', function() {
+      sideMenu.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    overlay.addEventListener('click', function() {
+      sideMenu.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Cerrar menú al hacer clic en un enlace (en móvil)
+    const menuLinks = document.querySelectorAll('.main-menu a');
+    menuLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        if (window.innerWidth <= 992) {
+          mainMenu.style.display = 'none';
+          mobileMenu.classList.remove('active');
+        }
+      });
+    });
+
+    // Sistema de animaciones al hacer scroll
+    function animateOnScroll() {
+      const elements = document.querySelectorAll('[data-animation]');
+      
+      elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        const delay = element.getAttribute('data-delay') || 0;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          setTimeout(() => {
+            element.classList.add('animate');
+          }, delay);
+        }
+      });
+    }
+
+    // CARRUSEL DE PROPIEDADES
+    function initCarousel() {
+      const track = document.getElementById('carousel-track');
+      const cards = document.querySelectorAll('.property-card');
+      const prevBtn = document.querySelector('.carousel-arrow.prev');
+      const nextBtn = document.querySelector('.carousel-arrow.next');
+      const indicatorsContainer = document.getElementById('carousel-indicators');
+      
+      const cardWidth = cards[0].offsetWidth + 30; // Ancho + gap
+      const visibleCards = Math.floor(track.parentElement.offsetWidth / cardWidth);
+      const totalCards = cards.length;
+      const totalSlides = Math.ceil(totalCards / visibleCards);
+      let currentSlide = 0;
+      
+      // Crear indicadores
+      for (let i = 0; i < totalSlides; i++) {
+        const indicator = document.createElement('button');
+        indicator.className = `carousel-indicator ${i === 0 ? 'active' : ''}`;
+        indicator.addEventListener('click', () => goToSlide(i));
+        indicatorsContainer.appendChild(indicator);
+      }
+      
+      function updateCarousel() {
+        const translateX = -currentSlide * visibleCards * cardWidth;
+        track.style.transform = `translateX(${translateX}px)`;
+        
+        // Actualizar indicadores
+        document.querySelectorAll('.carousel-indicator').forEach((indicator, index) => {
+          indicator.classList.toggle('active', index === currentSlide);
+        });
+        
+        // Actualizar estado de botones
+        prevBtn.disabled = currentSlide === 0;
+        nextBtn.disabled = currentSlide === totalSlides - 1;
+      }
+      
+      function goToSlide(slideIndex) {
+        currentSlide = slideIndex;
+        updateCarousel();
+      }
+      
+      function nextSlide() {
+        if (currentSlide < totalSlides - 1) {
+          currentSlide++;
+          updateCarousel();
+        }
+      }
+      
+      function prevSlide() {
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateCarousel();
+        }
+      }
+      
+      // Event listeners
+      prevBtn.addEventListener('click', prevSlide);
+      nextBtn.addEventListener('click', nextSlide);
+      
+      // Inicializar
+      updateCarousel();
+      
+      // Recalcular en resize
+      window.addEventListener('resize', function() {
+        const newVisibleCards = Math.floor(track.parentElement.offsetWidth / cardWidth);
+        if (newVisibleCards !== visibleCards) {
+          location.reload(); // Recargar para recalcular todo
+        }
+      });
+    }
+
+    // SECCIÓN SOBRE NOSOTROS - Funcionalidad de pestañas
+    const aboutSection = document.querySelector('.about');
+    const tabContent = document.getElementById('tabContent');
+    const mainImage = document.getElementById('mainImage');
+    const buttons = document.querySelectorAll('.tabs button');
+
+    const data = {
+      arquitectura: {
+        text: `
+          <p>Nuestro equipo de arquitectos diseña espacios que combinan estética, funcionalidad y sostenibilidad.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Proyectos innovadores y modernos</li>
+            <li><span class="ico">✓</span> Supervisión constante y control de calidad</li>
+            <li><span class="ico">✓</span> Materiales de alta durabilidad y eficiencia</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80",
+        mainImg: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1453&q=80"
+      },
+      interior: {
+        text: `
+          <p>Convertimos espacios en lugares acogedores, elegantes y funcionales, reflejando el estilo de cada cliente.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Diseño personalizado y exclusivo</li>
+            <li><span class="ico">✓</span> Asesoramiento en materiales y decoración</li>
+            <li><span class="ico">✓</span> Armonía entre estética y confort</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80",
+        mainImg: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80"
+      },
+      "3d": {
+        text: `
+          <p>Ofrecemos visualizaciones 3D realistas para que imagines tu proyecto antes de hacerlo realidad.</p>
+          <ul class="features">
+            <li><span class="ico">✓</span> Modelado y renders de alta calidad</li>
+            <li><span class="ico">✓</span> Presentaciones virtuales inmersivas</li>
+            <li><span class="ico">✓</span> Revisión y ajustes antes de la ejecución</li>
+          </ul>
+        `,
+        img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80",
+        mainImg: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1153&q=80"
+      }
+    };
+
+    function showTab(tab) {
+      buttons.forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+      tabContent.classList.add('fade');
+      setTimeout(() => {
+        tabContent.innerHTML = `
+          <div class="text">${data[tab].text}</div>
+          <div class="subimg-wrap"><div class="subimg"><img src="${data[tab].img}" alt=""></div></div>
+        `;
+        tabContent.classList.remove('fade');
+        
+        // Transición suave para la imagen principal
+        mainImage.style.opacity = '0.5';
+        setTimeout(() => {
+          mainImage.src = data[tab].mainImg;
+          mainImage.style.opacity = '1';
+        }, 300);
+      }, 300);
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => showTab(btn.dataset.tab));
+    });
+
+    // Mostrar la primera pestaña por defecto
+    showTab('arquitectura');
+
+    // Animación al hacer scroll para la sección "Sobre Nosotros"
+    function revealAboutSection() {
+      const rect = aboutSection.getBoundingClientRect();
+      if (rect.top < window.innerHeight - 100) {
+        aboutSection.classList.add('visible');
+        window.removeEventListener('scroll', revealAboutSection);
+      }
+    }
+    window.addEventListener('scroll', revealAboutSection);
+    revealAboutSection();
+
+    // Inicializar carrusel cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+      initCarousel();
+    });
+
+    // Ejecutar animaciones al cargar y al hacer scroll
+    window.addEventListener('load', animateOnScroll);
+    window.addEventListener('scroll', animateOnScroll);
+
+    // Scripts existentes de la página
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        console.log('Action triggered:', btn.textContent.trim());
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+Array
+(
+    [id] => 1
+    [contrasena] => 123456
+    [rol] => admin
+)
