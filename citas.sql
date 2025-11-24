@@ -1,238 +1,210 @@
--- Crear la base de datos principal
-CREATE DATABASE IF NOT EXISTS citas;
-USE citas;
+-- ============================================================
+-- 🏡 BASE DE DATOS PARA SISTEMA INMOBILIARIO (ESCALABLE)
+-- ============================================================
 
--- Tabla de roles
+CREATE DATABASE IF NOT EXISTS inmobiliaria
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_general_ci;
+
+USE inmobiliaria;
+
+-- ============================================================
+-- 1️⃣ TABLA DE ROLES
+-- ============================================================
+
 CREATE TABLE roles (
-    idRol INT PRIMARY KEY AUTO_INCREMENT,
-    nombreRol VARCHAR(50) NOT NULL UNIQUE,
-    descripcion TEXT,
-    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+id INT AUTO_INCREMENT PRIMARY KEY,
+nombre VARCHAR(50) NOT NULL UNIQUE COMMENT 'admin, cliente, agente'
 );
 
--- Tabla de usuarios
+INSERT INTO roles (nombre) VALUES
+('admin'),
+('cliente'),
+('agente');
+
+-- ============================================================
+-- 2️⃣ TABLA DE USUARIOS (GENÉRICA CON ROLES)
+-- ============================================================
+
 CREATE TABLE usuarios (
-    idUsuario INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(150) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    telefono VARCHAR(20),
-    idRol INT NOT NULL,
-    activo BOOLEAN DEFAULT TRUE,
-    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fechaActualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (idRol) REFERENCES roles(idRol)
+id INT AUTO_INCREMENT PRIMARY KEY,
+nombre VARCHAR(150) NOT NULL,
+correo VARCHAR(150) NOT NULL UNIQUE,
+telefono VARCHAR(30),
+contrasena VARCHAR(255) NOT NULL,
+rol_id INT NOT NULL,
+estado ENUM('activo','inactivo') DEFAULT 'activo',
+creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (rol_id) REFERENCES roles(id)
 );
 
--- Tabla de tipos de propiedad
-CREATE TABLE tipos_propiedad (
-    idTipoPropiedad INT PRIMARY KEY AUTO_INCREMENT,
-    nombreTipo VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT
+-- Datos de prueba
+INSERT INTO usuarios (nombre, correo, telefono, contrasena, rol_id) VALUES
+('Administrador General', '[admin@demo.com](mailto:admin@demo.com)', '70000000', '123456', 1),
+('Carlos Agent',        '[carlos@inmo.com](mailto:carlos@inmo.com)', '70000001', '123456', 3),
+('María Agent',         '[maria@inmo.com](mailto:maria@inmo.com)',  '70000002', '123456', 3),
+('Juan Pérez',          '[juan@gmail.com](mailto:juan@gmail.com)',  '70000003', '123456', 2),
+('Ana López',           '[ana@gmail.com](mailto:ana@gmail.com)',   '70000004', '123456', 2);
+
+-- ============================================================
+-- 3️⃣ TABLA DE AGENTES (INFORMACIÓN ESPECÍFICA)
+-- ============================================================
+
+CREATE TABLE agentes (
+id INT AUTO_INCREMENT PRIMARY KEY,
+usuario_id INT NOT NULL UNIQUE,
+disponible BOOLEAN DEFAULT TRUE,
+especialidad VARCHAR(100),
+ubicacion VARCHAR(150),
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
--- Tabla de propiedades (combinando tu estructura personalizada)
+-- Datos de prueba
+INSERT INTO agentes (usuario_id, disponible, especialidad, ubicacion) VALUES
+(2, TRUE, 'Ventas',     'La Paz'),
+(3, TRUE, 'Alquileres', 'El Alto');
+
+-- ============================================================
+-- 4️⃣ TABLA DE PROPIEDADES
+-- ============================================================
+
 CREATE TABLE propiedades (
-    idPropiedad INT PRIMARY KEY AUTO_INCREMENT,
-    titulo VARCHAR(255) NOT NULL,
-    descripcion TEXT,
-    tipo VARCHAR(50) NOT NULL, -- casa, departamento, local, etc.
-    direccion VARCHAR(255) NOT NULL,
-    ciudad VARCHAR(100) NOT NULL,
-    precio DECIMAL(12,2) NOT NULL,
-    habitaciones INT,
-    banos INT,
-    metros_cuadrados INT,
-    idUsuario INT,
-    disponible BOOLEAN DEFAULT TRUE,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+id INT AUTO_INCREMENT PRIMARY KEY,
+titulo VARCHAR(150) NOT NULL,
+direccion VARCHAR(255),
+ciudad VARCHAR(100),
+tipo ENUM('venta','alquiler') DEFAULT 'venta',
+precio DECIMAL(12,2),
+area DECIMAL(10,2),
+habitaciones INT,
+banos INT,
+descripcion TEXT,
+imagen_principal VARCHAR(255),
+disponible TINYINT(1) DEFAULT 1,
+creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de estados de cita
-CREATE TABLE estados_cita (
-    idEstado INT PRIMARY KEY AUTO_INCREMENT,
-    nombreEstado VARCHAR(50) NOT NULL UNIQUE,
-    descripcion TEXT
+-- Datos de prueba
+INSERT INTO propiedades
+(titulo, direccion, ciudad, tipo, precio, area, habitaciones, banos, descripcion, imagen_principal) VALUES
+('Departamento en Sopocachi', 'Calle 6 #123', 'La Paz', 'venta',   85000, 95, 3, 2, 'Hermoso departamento cercano al centro.', 'img1.jpg'),
+('Casa en Achumani',          'Av. 3 #45',    'La Paz', 'venta',  190000, 210, 4, 3, 'Casa amplia con jardín.',               'img2.jpg'),
+('Garzonier en Miraflores',   'Calle Landaeta','La Paz','alquiler', 350, 45, 1, 1, 'Garzonier moderno y amoblado.',         'img3.jpg');
+
+-- ============================================================
+-- 5️⃣ DISPONIBILIDAD REAL DE AGENTES (CALENDARIO)
+-- ============================================================
+
+CREATE TABLE disponibilidad_agente (
+id INT AUTO_INCREMENT PRIMARY KEY,
+agente_id INT NOT NULL,
+fecha DATE NOT NULL,
+hora_inicio TIME NOT NULL,
+hora_fin TIME NOT NULL,
+disponible BOOLEAN DEFAULT TRUE,
+FOREIGN KEY (agente_id) REFERENCES agentes(id)
 );
 
--- Tabla de citas
+-- Índice para optimizar búsquedas por fecha/hora
+CREATE INDEX idx_disponibilidad_agente_fecha
+ON disponibilidad_agente(agente_id, fecha, hora_inicio, hora_fin);
+
+-- Datos de prueba
+INSERT INTO disponibilidad_agente (agente_id, fecha, hora_inicio, hora_fin) VALUES
+(1, '2025-11-30', '09:00:00', '12:00:00'),
+(2, '2025-11-30', '13:00:00', '17:00:00');
+
+-- ============================================================
+-- 6️⃣ SOLICITUDES DE CITA (CLIENTE → SISTEMA)
+-- ============================================================
+
+CREATE TABLE solicitudes_cita (
+id INT AUTO_INCREMENT PRIMARY KEY,
+usuario_id INT NOT NULL,
+propiedad_id INT NOT NULL,
+fecha_solicitada DATE NOT NULL,
+hora_solicitada TIME NOT NULL,
+estado ENUM('pendiente','aceptada','rechazada','cancelada','completada','en_progreso') DEFAULT 'pendiente',
+mensaje TEXT,
+creada_por ENUM('cliente','admin') DEFAULT 'cliente',
+agente_asignado INT,
+fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+FOREIGN KEY (propiedad_id) REFERENCES propiedades(id),
+FOREIGN KEY (agente_asignado) REFERENCES agentes(id)
+);
+
+-- Índice para evitar doble reserva de la misma propiedad (backend también debe validar choques de hora)
+CREATE UNIQUE INDEX idx_solicitud_unica
+ON solicitudes_cita(propiedad_id, fecha_solicitada, hora_solicitada);
+
+-- Datos de prueba
+INSERT INTO solicitudes_cita
+(usuario_id, propiedad_id, fecha_solicitada, hora_solicitada, estado, mensaje, agente_asignado) VALUES
+(4, 1, '2025-11-30', '10:00:00', 'pendiente', 'Quiero ver el departamento.', 1),
+(5, 3, '2025-11-30', '14:00:00', 'aceptada',  'Consulta por alquiler.',       2);
+
+-- ============================================================
+-- 7️⃣ CITAS CONFIRMADAS (AGENDA REAL)
+-- ============================================================
+
 CREATE TABLE citas (
-    idCita INT PRIMARY KEY AUTO_INCREMENT,
-    idPropiedad INT NOT NULL,
-    fechaVisita DATE NOT NULL,
-    horaInicio TIME NOT NULL,
-    horaFin TIME NOT NULL,
-    nombreCliente VARCHAR(150) NOT NULL,
-    telefonoCliente VARCHAR(20) NOT NULL,
-    correoCliente VARCHAR(150) NOT NULL,
-    idEstado INT NOT NULL DEFAULT 1,
-    notas TEXT,
-    idUsuario INT,
-    fechaCreacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fechaActualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (idPropiedad) REFERENCES propiedades(idPropiedad),
-    FOREIGN KEY (idEstado) REFERENCES estados_cita(idEstado),
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+id INT AUTO_INCREMENT PRIMARY KEY,
+solicitud_id INT NOT NULL,
+agente_id INT NOT NULL,
+fecha DATE NOT NULL,
+hora TIME NOT NULL,
+estado ENUM('programada','en_progreso','finalizada','cancelada') DEFAULT 'programada',
+nota TEXT,
+FOREIGN KEY (solicitud_id) REFERENCES solicitudes_cita(id) ON DELETE CASCADE,
+FOREIGN KEY (agente_id) REFERENCES agentes(id)
 );
 
--- Tabla historial
-CREATE TABLE historial_citas (
-    idHistorial INT PRIMARY KEY AUTO_INCREMENT,
-    idCita INT NOT NULL,
-    idEstadoAnterior INT,
-    idEstadoNuevo INT NOT NULL,
-    motivoCambio TEXT,
-    idUsuario INT NOT NULL,
-    fechaCambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (idCita) REFERENCES citas(idCita),
-    FOREIGN KEY (idEstadoAnterior) REFERENCES estados_cita(idEstado),
-    FOREIGN KEY (idEstadoNuevo) REFERENCES estados_cita(idEstado),
-    FOREIGN KEY (idUsuario) REFERENCES usuarios(idUsuario)
+-- Datos de prueba
+INSERT INTO citas (solicitud_id, agente_id, fecha, hora, estado) VALUES
+(2, 2, '2025-11-30', '14:00:00', 'programada');
+
+-- ============================================================
+-- 8️⃣ NOTIFICACIONES
+-- ============================================================
+
+CREATE TABLE notificaciones (
+id INT AUTO_INCREMENT PRIMARY KEY,
+usuario_id INT NOT NULL,
+titulo VARCHAR(150),
+mensaje TEXT NOT NULL,
+leida TINYINT(1) DEFAULT 0,
+fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
--- Insertar datos base
-INSERT INTO roles (nombreRol, descripcion) VALUES 
-('Administrador', 'Acceso completo al sistema'),
-('Agente', 'Gestiona propiedades y citas'),
-('Cliente', 'Puede solicitar citas');
+-- Datos de prueba
+INSERT INTO notificaciones (usuario_id, titulo, mensaje) VALUES
+(4, 'Solicitud recibida', 'Tu solicitud para visitar la propiedad fue registrada.'),
+(5, 'Cita confirmada',   'Tu cita para el garzonier fue confirmada.');
 
-INSERT INTO estados_cita (nombreEstado, descripcion) VALUES 
-('Pendiente', 'Cita pendiente de confirmación'),
-('Confirmada', 'Cita confirmada por el agente'),
-('Completada', 'Visita realizada'),
-('Cancelada', 'Cita cancelada');
+-- ============================================================
+-- 9️⃣ REGISTRO DE LOGS (AUDITORÍA)
+-- ============================================================
 
--- Insertar usuarios
-INSERT INTO usuarios (nombre, email, password, telefono, idRol) VALUES 
-('Administrador Principal', 'admin@citas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '777-0000', 1),
-('María González', 'maria@citas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '777-1111', 2),
-('Carlos Rodríguez', 'carlos@citas.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '777-2222', 2);
+CREATE TABLE logs (
+id INT AUTO_INCREMENT PRIMARY KEY,
+usuario_id INT,
+accion VARCHAR(255),
+detalle TEXT,
+fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
 
--- Insertar propiedades
-INSERT INTO propiedades (titulo, descripcion, tipo, direccion, ciudad, precio, habitaciones, banos, metros_cuadrados, idUsuario)
-VALUES
-('Casa familiar con jardín', 'Casa cómoda con patio y garaje', 'Casa', 'Av. Central 101', 'Ciudad Central', 180000.00, 3, 2, 150, 2),
-('Departamento moderno', 'Condominio en el centro con gimnasio y piscina', 'Departamento', 'Calle Sur 23', 'Ciudad Central', 220000.00, 2, 2, 95, 3),
-('Local comercial amplio', 'Espacio comercial ideal para tienda', 'Local', 'Zona Norte 45', 'Ciudad Central', 150000.00, 0, 1, 80, 2);
+-- Datos de prueba
+INSERT INTO logs (usuario_id, accion, detalle) VALUES
+(1, 'CREAR_PROPIEDAD', 'Se agregó la propiedad de Achumani.'),
+(2, 'ACEPTAR_SOLICITUD', 'El agente Carlos aceptó una solicitud.');
 
--- Insertar citas de ejemplo
-INSERT INTO citas (idPropiedad, fechaVisita, horaInicio, horaFin, nombreCliente, telefonoCliente, correoCliente, idEstado, notas, idUsuario)
-VALUES
-(1, '2025-10-21', '10:00:00', '11:00:00', 'Ana Pérez', '777-3333', 'ana@correo.com', 1, 'Interesada en ver el jardín', 2),
-(2, '2025-10-22', '15:00:00', '16:00:00', 'Luis Gómez', '777-4444', 'luis@correo.com', 2, 'Desea negociar el precio', 3),
-(3, '2025-10-23', '09:30:00', '10:00:00', 'Sofía Morales', '777-5555', 'sofia@correo.com', 3, 'Cliente satisfecho', 2);
 
--- Procedimiento para cancelar cita
-DELIMITER //
-CREATE PROCEDURE cancelar_cita(
-    IN p_idCita INT,
-    IN p_motivo TEXT,
-    IN p_idUsuario INT
-)
-BEGIN
-    DECLARE v_estado_actual INT;
-    SELECT idEstado INTO v_estado_actual FROM citas WHERE idCita = p_idCita;
-    UPDATE citas SET idEstado = 4, fechaActualizacion = CURRENT_TIMESTAMP WHERE idCita = p_idCita;
-    INSERT INTO historial_citas (idCita, idEstadoAnterior, idEstadoNuevo, motivoCambio, idUsuario)
-    VALUES (p_idCita, v_estado_actual, 4, p_motivo, p_idUsuario);
-END//
-DELIMITER ;
 
--- Vista de citas completas
-CREATE VIEW vista_citas_completas AS
-SELECT 
-    c.idCita,
-    c.fechaVisita,
-    c.horaInicio,
-    c.horaFin,
-    c.nombreCliente,
-    c.telefonoCliente,
-    c.correoCliente,
-    c.notas,
-    ec.nombreEstado AS estado,
-    p.titulo AS propiedad_titulo,
-    p.tipo AS propiedad_tipo,
-    p.ciudad AS propiedad_ciudad,
-    p.precio AS propiedad_precio,
-    u.nombre AS agente_asignado
-FROM citas c
-JOIN estados_cita ec ON c.idEstado = ec.idEstado
-JOIN propiedades p ON c.idPropiedad = p.idPropiedad
-LEFT JOIN usuarios u ON c.idUsuario = u.idUsuario;
-
--- Vista para citas vigentes
-CREATE VIEW vista_citas_vigentes AS
-SELECT * FROM vista_citas_completas
-WHERE estado IN ('Pendiente', 'Confirmada')
-ORDER BY fechaVisita, horaInicio;
-
--- Función para contar citas por estado
-DELIMITER //
-CREATE FUNCTION contar_citas_por_estado(p_idEstado INT) 
-RETURNS INT
-READS SQL DATA
-DETERMINISTIC
-BEGIN
-    DECLARE total INT;
-    SELECT COUNT(*) INTO total FROM citas WHERE idEstado = p_idEstado;
-    RETURN total;
-END//
-DELIMITER ;
-
--- Más usuarios (agentes)
-INSERT INTO usuarios (nombre, email, password, telefono, idRol) VALUES
-('Luis Pérez', 'luis@inmobiliaria.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '555-0004', 2),
-('Sofía Ramírez', 'sofia@inmobiliaria.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '555-0005', 2);
-
--- Más propiedades
-INSERT INTO propiedades (titulo, descripcion, tipo, direccion, ciudad, precio, habitaciones, banos, metros_cuadrados, disponible) VALUES
-('Departamento céntrico con balcón', 'Departamento moderno, 2 habitaciones, 1 baño, excelente ubicación.', 'Departamento', 'Calle Central 101', 'Ciudad Central', 120000, 2, 1, 75, 1),
-('Casa pequeña en suburbios', 'Casa acogedora, 2 habitaciones, 1 baño, jardín pequeño.', 'Casa', 'Av. Secundaria 222', 'Ciudad Central', 90000, 2, 1, 65, 1),
-('Local comercial en zona de negocios', 'Ideal para oficina o tienda, 50 m2.', 'Local', 'Calle Comercio 15', 'Ciudad Central', 50000, 0, 1, 50, 1);
-
-USE citas;
-
--- Insertar más agentes
-INSERT INTO usuarios (nombre, email, password, telefono, idRol) VALUES
-('Lucía Pérez', 'lucia@inmobiliaria.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '555-0004', 2),
-('Jorge Martínez', 'jorge@inmobiliaria.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '555-0005', 2);
-
--- Insertar más propiedades disponibles
-INSERT INTO propiedades (titulo, descripcion, tipo, direccion, ciudad, precio, habitaciones, banos, metros_cuadrados, idUsuario, disponible) VALUES
-('Apartamento céntrico con terraza', 'Apartamento moderno con 2 habitaciones y terraza.', 'Departamento', 'Calle Central 101', 'Ciudad Central', 150000.00, 2, 2, 75, 3, 1),
-('Local comercial en avenida principal', 'Local amplio para negocios, excelente ubicación.', 'Local', 'Av. Comercio 202', 'Ciudad Central', 200000.00, NULL, 2, 120, 4, 1),
-('Oficina ejecutiva en edificio corporativo', 'Oficina de 50 m² con excelente vista y acceso a sala de reuniones.', 'Oficina', 'Edificio Empresarial 3er Piso', 'Ciudad Central', 95000.00, NULL, 1, 50, 5, 1),
-('Casa moderna con jardín y piscina', 'Casa de lujo, 4 habitaciones, 3 baños y piscina privada.', 'Casa', 'Residencial Verde 33', 'Ciudad Central', 350000.00, 4, 3, 200, 2, 1),
-('Terreno urbano para construcción', 'Terreno plano ideal para construir vivienda o comercio.', 'Terreno', 'Zona Industrial 44', 'Ciudad Central', 80000.00, NULL, NULL, 500, 3, 1);
-
--- Verifica que las propiedades estén disponibles
-SELECT idPropiedad, titulo, disponible FROM propiedades;
-
-DROP VIEW IF EXISTS vista_citas_completas;
-
-CREATE VIEW vista_citas_completas AS
-SELECT 
-    c.idCita,
-    c.idUsuario,  -- <--- esta línea es nueva
-    c.fechaVisita,
-    c.horaInicio,
-    c.horaFin,
-    c.nombreCliente,
-    c.telefonoCliente,
-    c.correoCliente,
-    c.notas,
-    ec.nombreEstado AS estado,
-    p.titulo AS propiedad_titulo,
-    p.direccion AS propiedad_direccion,
-    p.ciudad AS propiedad_ciudad,
-    p.precio AS propiedad_precio,
-    tp.nombreTipo AS propiedad_tipo,
-    u.nombre AS agente_asignado,
-    u.email AS agente_email
-FROM citas c
-INNER JOIN estados_cita ec ON c.idEstado = ec.idEstado
-INNER JOIN propiedades p ON c.idPropiedad = p.idPropiedad
-INNER JOIN tipos_propiedad tp ON p.idTipoPropiedad = tp.idTipoPropiedad
-LEFT JOIN usuarios u ON c.idUsuario = u.idUsuario;
+UPDATE usuarios SET correo = 'admin@demo.com' WHERE id = 1;
+UPDATE usuarios SET correo = 'carlos@inmo.com' WHERE id = 2;
+UPDATE usuarios SET correo = 'maria@inmo.com' WHERE id = 3;
+UPDATE usuarios SET correo = 'juan@gmail.com' WHERE id = 4;
+UPDATE usuarios SET correo = 'ana@gmail.com' WHERE id = 5;

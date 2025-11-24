@@ -1,0 +1,19 @@
+/* propiedades.css */
+
+/* Tabla más compacta y legible */
+table th, table td {
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Modal inputs con un poco de espacio */
+#modalPropiedad .form-control {
+    margin-bottom: 10px;
+}
+
+/* Toast personalizado */
+.toast-body {
+    background-color: #198754;
+    color: white;
+    font-weight: bold;
+}

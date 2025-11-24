@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas - Administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilo opcional para toasts */
+        #toastContainer .toast {
+            min-width: 250px;
+            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="mb-4">Gestión de Citas</h2>
+
+    <button class="btn btn-success mb-3" id="btnNuevaCita">Nueva Cita</button>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="tablaCitasAdmin">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Propiedad</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                    <th>Mensaje</th>
+                    <th>Agente</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Se llenará dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para crear/editar cita -->
+<div class="modal fade" id="modalCita" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formCita">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nueva Cita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="propiedad" class="form-label">Propiedad</label>
+                        <select id="propiedad" class="form-select" required>
+                            <option value="">Cargando propiedades...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cliente" class="form-label">Cliente</label>
+                        <select id="cliente" class="form-select" required>
+                            <option value="">Cargando clientes...</option>
+                        </select>
+                        <small class="text-muted">Si el cliente no aparece, puedes escribir su nombre directamente.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" id="fecha" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hora" class="form-label">Hora</label>
+                        <input type="time" id="hora" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mensaje" class="form-label">Mensaje</label>
+                        <textarea id="mensaje" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Asignar Agente -->
+<div class="modal fade" id="modalAsignar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Asignar Agente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Selecciona un agente:</label>
+                    <select id="selectAgentes" class="form-select">
+                        <option value="">Cargando agentes...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="btnAsignarConfirmar" class="btn btn-success">Asignar</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Contenedor para los toasts -->
+<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/citas_admin.js"></script>
+</body>
+</html>
