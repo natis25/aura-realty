@@ -3,58 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Admin</title>
+
+<title>Aura Realty - Panel Admin</title>
+
+<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Iconos -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
 <style>
-  body { min-height: 100vh; display: flex; }
-  #sidebar { width: 220px; background: #343a40; color: #fff; }
-  #sidebar a { color: #fff; text-decoration: none; }
-  #sidebar a.active { background: #495057; }
-  #main { flex: 1; padding: 20px; }
-  .cursor-pointer { cursor: pointer; }
-  .logout-btn { margin-top: auto; }
+    body {
+        display: flex;
+        min-height: 100vh;
+        background: #f5f6fa;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* ========== NAVBAR SUPERIOR ========== */
+    #topbar {
+        height: 60px;
+        width: 100%;
+        background: #ffffff;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 500;
+    }
+
+    #topbar h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    /* ========== SIDEBAR ========== */
+    #sidebar {
+        width: 260px;
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+        padding-top: 80px;
+        height: 100vh;
+        position: fixed;
+        left: 0;
+        top: 0;
+        overflow-y: auto;
+    }
+
+    #sidebar .nav-link {
+        color: #374151;
+        padding: 12px 18px;
+        font-size: 15px;
+        border-radius: 10px;
+        margin: 4px 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.2s ease;
+    }
+
+    #sidebar .nav-link:hover {
+        background: #e5f3ff;
+        color: #0c63e7;
+        transform: translateX(4px);
+    }
+
+    #sidebar .nav-link.active {
+        background: #0c63e7;
+        color: white !important;
+        font-weight: 600;
+    }
+
+    /* SUBMENÚ */
+    .submenu {
+        margin-left: 45px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .submenu a {
+        font-size: 14px;
+        padding: 8px 15px !important;
+    }
+
+    .submenu.show {
+        display: block;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CONTENIDO PRINCIPAL */
+    #main {
+        flex: 1;
+        margin-left: 260px;
+        margin-top: 70px;
+        padding: 25px;
+    }
+
+    #logoutBtn {
+        margin: 20px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 10px;
+        width: 85%;
+        border-radius: 10px;
+        font-size: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    #logoutBtn:hover {
+        background: #b91c1c;
+    }
 </style>
 </head>
+
 <body>
 
+<!-- Scripts de autenticación -->
 <script src="/TALLER/aura-realty/frontend/js/session.js"></script>
-<!-- si tienes un auth.js separado, puede cargarse después -->
 <script src="/TALLER/aura-realty/frontend/js/auth.js"></script>
 
-<!-- Sidebar -->
-<div id="sidebar" class="d-flex flex-column p-3">
-  <h4 class="mb-4">Admin Dashboard</h4>
-  <ul class="nav flex-column mb-4">
-    <li class="nav-item mb-2"><a href="usuarios.html" class="nav-link">Usuarios</a></li>
-    <li class="nav-item mb-2"><a href="propiedades.html" class="nav-link">Propiedades</a></li>
-    <li class="nav-item mb-2"><a href="solicitudes.html" class="nav-link">Solicitudes</a></li>
-    <li class="nav-item mb-2"><a href="citas.html" class="nav-link">Citas</a></li>
-  </ul>
-  <!-- Botón de logout -->
-  <button id="logoutBtn" class="btn btn-danger logout-btn">
-      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-  </button>
-</div>
+<!-- NAVBAR SUPERIOR -->
+<nav id="topbar">
+    <h5><i class="fa-solid fa-gauge-high me-2"></i>Panel Administrativo</h5>
+</nav>
 
-<!-- Main -->
+<!-- SIDEBAR -->
+<aside id="sidebar">
+
+    <!-- DASHBOARD -->
+    <a href="dashboard.html" class="nav-link">
+        <i class="fa-solid fa-chart-line"></i> Dashboard
+    </a>
+
+    <!-- USUARIOS -->
+    <a class="nav-link cursor-pointer" onclick="toggleSubmenu('usersMenu')">
+        <i class="fa-solid fa-users"></i> Usuarios
+        <i class="fa-solid fa-chevron-down ms-auto"></i>
+    </a>
+    <div id="usersMenu" class="submenu">
+        <a href="usuarios_todos.html" class="nav-link">Todos los usuarios</a>
+        <a href="usuarios_clientes.html" class="nav-link">Clientes</a>
+        <a href="usuarios_agentes.html" class="nav-link">Agentes</a>
+    </div>
+
+    <!-- PROPIEDADES -->
+    <a class="nav-link cursor-pointer" onclick="toggleSubmenu('propsMenu')">
+        <i class="fa-solid fa-house"></i> Propiedades
+        <i class="fa-solid fa-chevron-down ms-auto"></i>
+    </a>
+    <div id="propsMenu" class="submenu">
+        <a href="propiedades.html" class="nav-link">Todas</a>
+        <a href="propiedades_activas.html" class="nav-link">Activas</a>
+        <a href="propiedades_vendidas.html" class="nav-link">Vendidas</a>
+    </div>
+
+    <!-- SOLICITUDES -->
+    <a href="solicitudes.html" class="nav-link">
+        <i class="fa-solid fa-envelope-open-text"></i> Solicitudes
+    </a>
+
+    <!-- CITAS -->
+    <a href="citas.html" class="nav-link">
+        <i class="fa-solid fa-calendar-check"></i> Citas
+    </a>
+
+    <!-- LOGOUT -->
+    <button id="logoutBtn">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+    </button>
+
+</aside>
+
+<!-- CONTENIDO PRINCIPAL -->
 <div id="main">
-  <h3>Bienvenido al Dashboard Admin</h3>
-  <p>Seleccione una sección desde el menú lateral para gestionar el sistema.</p>
+    <h3 class="fw-bold">Bienvenido, Administrador</h3>
+    <p class="text-muted">Usa el menú lateral para navegar por el sistema.</p>
 </div>
 
 
 <script>
-  // Validar que el usuario sea ADMIN (esto ejecuta la función unificada)
-  checkAuth("admin");
-</script>
+    checkAuth("admin");
 
-<script>
-  // Logout
-  document.getElementById("logoutBtn").addEventListener("click", () => {
-      localStorage.removeItem("user");
-      window.location.href = "/TALLER/aura-realty/frontend/login.html";
-  });
+    // Submenú
+    function toggleSubmenu(id) {
+        document.getElementById(id).classList.toggle("show");
+    }
+
+    // Página activa
+    const current = window.location.pathname.split("/").pop();
+    document.querySelectorAll("#sidebar a.nav-link").forEach(a => {
+        if (a.getAttribute("href") === current) {
+            a.classList.add("active");
+        }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("user");
+        window.location.href = "/TALLER/aura-realty/frontend/login.html";
+    });
 </script>
 
 </body>

@@ -12,7 +12,9 @@ $area = $_POST['area'] ?? 0;
 $habitaciones = $_POST['habitaciones'] ?? 0;
 $banos = $_POST['banos'] ?? 0;
 $descripcion = $_POST['descripcion'] ?? '';
-$disponible = isset($_POST['disponible']) ? 1 : 0;
+
+// Forzar disponible = 1
+$disponible = 1;
 
 // Validar campos obligatorios
 if(!$titulo || !$ciudad) {

@@ -1,47 +1,59 @@
 <?php
-require_once '../../config/db.php';
-require_once '../../middleware/auth.php';
+header("Content-Type: application/json");
+require_once("../../config/db.php");
 
-header('Content-Type: application/json');
+// Obtener los datos enviados por POST (JSON)
+$data = json_decode(file_get_contents("php://input"), true);
 
-// Validar JWT y rol
-$admin = validate_jwt('admin');
-
-// Leer datos del POST
-$data = json_decode(file_get_contents("php://input"));
-
-if(!isset($data->nombre, $data->correo, $data->contrasena, $data->rol_id)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Faltan datos requeridos']);
+if (!$data || !isset($data['nombre'], $data['correo'], $data['rol'], $data['contrasena'])) {
+    echo json_encode(["success" => false, "message" => "Faltan datos obligatorios"]);
     exit;
 }
 
-// Validar que no exista un usuario con el mismo correo
-$stmt = $conn->prepare("SELECT id FROM usuarios WHERE correo = ?");
-$stmt->bind_param("s", $data->correo);
+$nombre = $conn->real_escape_string($data['nombre']);
+$correo = $conn->real_escape_string($data['correo']);
+$rol = $conn->real_escape_string($data['rol']);
+$contrasena = $data['contrasena']; // <-- texto plano, compatible con tu login actual
+
+// Verificar que el correo no exista
+$check = $conn->prepare("SELECT id FROM usuarios WHERE correo = ?");
+$check->bind_param("s", $correo);
+$check->execute();
+$check->store_result();
+if ($check->num_rows > 0) {
+    echo json_encode(["success" => false, "message" => "El correo ya está registrado"]);
+    exit;
+}
+
+// Obtener el rol_id
+$stmt = $conn->prepare("SELECT id FROM roles WHERE nombre = ? LIMIT 1");
+$stmt->bind_param("s", $rol);
 $stmt->execute();
 $result = $stmt->get_result();
-if($result->num_rows > 0) {
-    http_response_code(409);
-    echo json_encode(['error' => 'El correo ya está registrado']);
+if ($result->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "Rol no válido"]);
     exit;
 }
+$rol_id = $result->fetch_assoc()['id'];
 
-// Hashear la contraseña
-$hashed_password = password_hash($data->contrasena, PASSWORD_DEFAULT);
-
-// Insertar usuario
+// Insertar en usuarios
 $stmt = $conn->prepare("INSERT INTO usuarios (nombre, correo, contrasena, rol_id) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("sssi", $data->nombre, $data->correo, $hashed_password, $data->rol_id);
+$stmt->bind_param("sssi", $nombre, $correo, $contrasena, $rol_id);
 
-if($stmt->execute()) {
-    echo json_encode([
-        'status' => 'success',
-        'mensaje' => 'Usuario creado correctamente',
-        'usuario_id' => $stmt->insert_id
-    ]);
+if ($stmt->execute()) {
+    $usuario_id = $stmt->insert_id;
+
+    // Si el rol es agente, insertar también en tabla agentes
+    if ($rol === "agente") {
+        $stmtAgente = $conn->prepare("INSERT INTO agentes (usuario_id) VALUES (?)");
+        $stmtAgente->bind_param("i", $usuario_id);
+        if (!$stmtAgente->execute()) {
+            echo json_encode(["success" => false, "message" => "Usuario creado pero no se pudo registrar como agente: ".$conn->error]);
+            exit;
+        }
+    }
+
+    echo json_encode(["success" => true, "message" => "Usuario creado correctamente"]);
 } else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al crear el usuario']);
+    echo json_encode(["success" => false, "message" => "Error al crear usuario: ".$conn->error]);
 }
-?>

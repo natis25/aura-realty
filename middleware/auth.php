@@ -1,6 +1,7 @@
 <?php
-require_once '../config/jwt.php';
-require_once '../vendor/autoload.php';
+//require_once '../config/jwt.php';
+require_once __DIR__ . '/../config/jwt.php';
+//no hay archivo require_once '../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;

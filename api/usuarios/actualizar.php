@@ -1,76 +1,81 @@
 <?php
-require_once '../../config/db.php';
-require_once '../../middleware/auth.php';
+header("Content-Type: application/json");
+require_once("../../config/db.php");
 
-header('Content-Type: application/json');
+// Obtener los datos enviados por POST (JSON)
+$data = json_decode(file_get_contents("php://input"), true);
 
-// Validar JWT y rol
-$admin = validate_jwt('admin');
-
-// Leer datos del POST
-$data = json_decode(file_get_contents("php://input"));
-
-if(!isset($data->id)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Falta el ID del usuario']);
+if (!$data || !isset($data['id'], $data['nombre'], $data['correo'], $data['rol'])) {
+    echo json_encode(["success" => false, "message" => "Faltan datos obligatorios"]);
     exit;
 }
+
+$id = (int)$data['id'];
+$nombre = $conn->real_escape_string($data['nombre']);
+$correo = $conn->real_escape_string($data['correo']);
+$rol = $conn->real_escape_string($data['rol']);
+$estado = isset($data['estado']) ? $conn->real_escape_string($data['estado']) : 'activo';
 
 // Verificar que el usuario exista
-$stmt = $conn->prepare("SELECT id, correo FROM usuarios WHERE id = ?");
-$stmt->bind_param("i", $data->id);
+$stmt = $conn->prepare("SELECT id, rol_id FROM usuarios WHERE id = ?");
+$stmt->bind_param("i", $id);
 $stmt->execute();
-$user = $stmt->get_result()->fetch_assoc();
+$result = $stmt->get_result();
+if ($result->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "Usuario no encontrado"]);
+    exit;
+}
+$user = $result->fetch_assoc();
+$rol_id_actual = $user['rol_id'];
 
-if(!$user) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Usuario no encontrado']);
+// Obtener el rol_id del rol nuevo
+$stmtRol = $conn->prepare("SELECT id FROM roles WHERE nombre = ? LIMIT 1");
+$stmtRol->bind_param("s", $rol);
+$stmtRol->execute();
+$resultRol = $stmtRol->get_result();
+if ($resultRol->num_rows === 0) {
+    echo json_encode(["success" => false, "message" => "Rol no válido"]);
+    exit;
+}
+$rol_id_nuevo = $resultRol->fetch_assoc()['id'];
+
+// Verificar que el correo no esté siendo usado por otro usuario
+$stmtCheck = $conn->prepare("SELECT id FROM usuarios WHERE correo = ? AND id != ?");
+$stmtCheck->bind_param("si", $correo, $id);
+$stmtCheck->execute();
+$stmtCheck->store_result();
+if ($stmtCheck->num_rows > 0) {
+    echo json_encode(["success" => false, "message" => "El correo ya está en uso por otro usuario"]);
     exit;
 }
 
-// Validar correo único si se actualiza
-if(isset($data->correo) && $data->correo !== $user['correo']) {
-    $stmt = $conn->prepare("SELECT id FROM usuarios WHERE correo = ?");
-    $stmt->bind_param("s", $data->correo);
-    $stmt->execute();
-    if($stmt->get_result()->num_rows > 0) {
-        http_response_code(409);
-        echo json_encode(['error' => 'El correo ya está registrado']);
-        exit;
+// Actualizar usuario
+$stmtUpdate = $conn->prepare("UPDATE usuarios SET nombre=?, correo=?, rol_id=?, estado=? WHERE id=?");
+$stmtUpdate->bind_param("ssisi", $nombre, $correo, $rol_id_nuevo, $estado, $id);
+
+if ($stmtUpdate->execute()) {
+
+    // ================== Manejo de tabla agentes ==================
+    // Si antes era agente pero ahora no, eliminar de agentes
+    $stmtRolActual = $conn->prepare("SELECT nombre FROM roles WHERE id = ?");
+    $stmtRolActual->bind_param("i", $rol_id_actual);
+    $stmtRolActual->execute();
+    $rolNombreActual = $stmtRolActual->get_result()->fetch_assoc()['nombre'];
+
+    if ($rolNombreActual === "agente" && $rol !== "agente") {
+        $stmtDel = $conn->prepare("DELETE FROM agentes WHERE usuario_id = ?");
+        $stmtDel->bind_param("i", $id);
+        $stmtDel->execute();
     }
-}
 
-// Construir consulta dinámicamente
-$fields = [];
-$params = [];
-$types = '';
+    // Si antes no era agente y ahora sí, insertar en agentes
+    if ($rolNombreActual !== "agente" && $rol === "agente") {
+        $stmtIns = $conn->prepare("INSERT INTO agentes (usuario_id) VALUES (?)");
+        $stmtIns->bind_param("i", $id);
+        $stmtIns->execute();
+    }
 
-if(isset($data->nombre)) { $fields[] = 'nombre = ?'; $params[] = $data->nombre; $types .= 's'; }
-if(isset($data->correo)) { $fields[] = 'correo = ?'; $params[] = $data->correo; $types .= 's'; }
-if(isset($data->rol_id)) { $fields[] = 'rol_id = ?'; $params[] = $data->rol_id; $types .= 'i'; }
-if(isset($data->contrasena)) { 
-    $fields[] = 'contrasena = ?'; 
-    $params[] = password_hash($data->contrasena, PASSWORD_DEFAULT); 
-    $types .= 's'; 
-}
-
-if(empty($fields)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'No hay campos para actualizar']);
-    exit;
-}
-
-$sql = "UPDATE usuarios SET " . implode(', ', $fields) . " WHERE id = ?";
-$params[] = $data->id;
-$types .= 'i';
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-
-if($stmt->execute()) {
-    echo json_encode(['status' => 'success', 'mensaje' => 'Usuario actualizado correctamente']);
+    echo json_encode(["success" => true, "message" => "Usuario actualizado correctamente"]);
 } else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al actualizar el usuario']);
+    echo json_encode(["success" => false, "message" => "Error al actualizar usuario: ".$conn->error]);
 }
-?>
