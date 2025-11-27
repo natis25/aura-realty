@@ -1,5 +1,5 @@
 <?php
-require_once '../vendor/autoload.php';
+//require_once '../vendor/autoload.php';
 use Firebase\JWT\JWT;
 
 define('JWT_SECRET', 'AURA_REAL_SECRET_2025'); 

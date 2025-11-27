@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
-    const tablaBody = document.querySelector("#tablaCitasAgente tbody");
-
-    const API_LISTAR = "http://localhost/TALLER/aura-realty/api/solicitudes/listar_agente.php";
+    const tablaBody = document.querySelector("#tbodyCitasAgente");
+    const API_LISTAR = "/TALLER/aura-realty/api/solicitudes/listar_agente.php";
 
     // ==========================
     // Validar usuario agente
@@ -12,10 +11,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const agenteId = user.id; // asumimos que el ID del agente coincide con agentes.usuario_id
+    // ==========================
+    // Obtener agente_id REAL
+    // ==========================
+    let agenteId = null;
+    try {
+        const agenteResp = await fetch(
+            `/TALLER/aura-realty/api/agentes/obtener_agente_id.php?usuario_id=${user.id}`
+        );
+        const agenteData = await agenteResp.json();
+
+        if (!agenteData.success) {
+            alert("Error: " + agenteData.message);
+            return;
+        }
+
+        agenteId = agenteData.agente_id;
+    } catch (err) {
+        console.error(err);
+        alert("Error obteniendo agente_id");
+        return;
+    }
 
     // ==========================
-    // Cargar citas
+    // Función para cargar citas
     // ==========================
     async function cargarCitas() {
         tablaBody.innerHTML = "<tr><td colspan='8' class='text-center'>Cargando...</td></tr>";
@@ -44,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td>${s.mensaje || ""}</td>
                     <td>
                         ${s.estado !== "completada" ? `
-                            <button class="btn btn-sm btn-success" onclick="actualizarEstado(${s.id}, 'en_progreso')">En Progreso</button>
+                            <button class="btn btn-sm btn-success me-1" onclick="actualizarEstado(${s.id}, 'en_progreso')">En Progreso</button>
                             <button class="btn btn-sm btn-primary" onclick="actualizarEstado(${s.id}, 'completada')">Completada</button>
                         ` : `<span class="text-success">Completada</span>`}
                     </td>
@@ -59,18 +78,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // ==========================
-    // Función global para actualizar estado
+    // Función para actualizar estado
     // ==========================
     window.actualizarEstado = async function(id, estado) {
         try {
             const res = await fetch("/TALLER/aura-realty/api/solicitudes/actualizar_estado.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ solicitud_id: id, estado: estado })
+                body: JSON.stringify({ solicitud_id: id, estado })
             });
             const data = await res.json();
             alert(data.message || data.error);
-            await cargarCitas(); // recargar la tabla
+            await cargarCitas(); // Recargar tabla
         } catch (error) {
             console.error(error);
             alert("Error actualizando estado");

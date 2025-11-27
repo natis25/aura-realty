@@ -1,41 +1,28 @@
 <?php
-require_once '../../config/db.php';
-require_once '../../middleware/auth.php';
+error_reporting(0);
+ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
+header("Content-Type: application/json");
+require_once("../../config/db.php");
 
-// Validar JWT y rol
-$admin = validate_jwt('admin');
+try {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $id = intval($data['id'] ?? 0);
 
-// Leer datos del POST
-$data = json_decode(file_get_contents("php://input"));
+    if ($id === 0) {
+        throw new Exception("ID de usuario inválido");
+    }
 
-if(!isset($data->id)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Falta el ID del usuario']);
-    exit;
+    $sql = "DELETE FROM usuarios WHERE id=?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+
+    if ($stmt->execute()) {
+        echo json_encode(["success"=>true,"message"=>"Usuario eliminado"]);
+    } else {
+        throw new Exception("Error al eliminar usuario: " . $conn->error);
+    }
+
+} catch(Exception $e) {
+    echo json_encode(["success"=>false,"message"=>$e->getMessage()]);
 }
-
-// Verificar que el usuario exista
-$stmt = $conn->prepare("SELECT id FROM usuarios WHERE id = ?");
-$stmt->bind_param("i", $data->id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if($result->num_rows === 0) {
-    http_response_code(404);
-    echo json_encode(['error' => 'Usuario no encontrado']);
-    exit;
-}
-
-// Eliminar usuario
-$stmt = $conn->prepare("DELETE FROM usuarios WHERE id = ?");
-$stmt->bind_param("i", $data->id);
-
-if($stmt->execute()) {
-    echo json_encode(['status' => 'success', 'mensaje' => 'Usuario eliminado correctamente']);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Error al eliminar el usuario']);
-}
-?>

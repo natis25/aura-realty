@@ -53,50 +53,51 @@ document.addEventListener("DOMContentLoaded", async () => {
             tablaBody.innerHTML = "";
             data.solicitudes.forEach(sol => {
                 const tr = document.createElement("tr");
+
+                // Badge de estado
+                let estadoBadge = "";
+                if(sol.estado === "pendiente") estadoBadge = '<span class="badge bg-warning text-dark">Pendiente</span>';
+                else if(sol.estado === "aceptada") estadoBadge = '<span class="badge bg-success">Aceptada</span>';
+                else if(sol.estado === "cancelada") estadoBadge = '<span class="badge bg-danger">Cancelada</span>';
+
                 tr.innerHTML = `
-    <td>${sol.id}</td>
-    <td>${sol.propiedad_titulo}</td>
-    <td>${sol.fecha_solicitada}</td>
-    <td>${sol.hora_solicitada}</td>
-    <td>
-  ${sol.estado === "pendiente" ? `<button class="btn btn-sm btn-danger btnCancelar" data-id="${sol.id}">Cancelar</button>` : ""}
-</td>
-
-    <td>${sol.mensaje || ""}</td>
-    <td>${sol.agente_nombre || "-"}</td>
-`;
-
+                    <td>${sol.propiedad_titulo}</td>
+                    <td>${sol.fecha_solicitada}</td>
+                    <td>${sol.hora_solicitada}</td>
+                    <td>${estadoBadge}</td>
+                    <td>${sol.mensaje || ""}</td>
+                    <td>${sol.agente_nombre || "-"}</td>
+                    <td>
+                        ${sol.estado === "pendiente" ? `<button class="btn btn-sm btn-danger btnCancelar" data-id="${sol.id}">Cancelar</button>` : ""}
+                    </td>
+                `;
                 tablaBody.appendChild(tr);
             });
 
             // Eventos de cancelar
-document.querySelectorAll(".btnCancelar").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        if (!confirm("¿Deseas cancelar esta solicitud?")) return;
-        try {
-            const res = await fetch("http://localhost/TALLER/aura-realty/api/solicitudes/actualizar_estado.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    solicitud_id: id,
-                    estado: "cancelada"
-                })
+            document.querySelectorAll(".btnCancelar").forEach(btn => {
+                btn.addEventListener("click", async () => {
+                    const id = btn.dataset.id;
+                    if (!confirm("¿Deseas cancelar esta solicitud?")) return;
+                    try {
+                        const res = await fetch("http://localhost/TALLER/aura-realty/api/solicitudes/actualizar_estado.php", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ solicitud_id: id, estado: "cancelada" })
+                        });
+                        const data = await res.json();
+                        if (!data.success) throw new Error(data.message || "No se pudo cancelar");
+                        await cargarSolicitudes();
+                    } catch (error) {
+                        console.error("Error cancelando solicitud:", error);
+                        alert("No se pudo cancelar la solicitud");
+                    }
+                });
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.message || "No se pudo cancelar");
-            await cargarSolicitudes();
-        } catch (error) {
-            console.error("Error cancelando solicitud:", error);
-            alert("No se pudo cancelar la solicitud");
-        }
-    });
-});
-
 
         } catch (error) {
             console.error("Error cargando solicitudes:", error);
-            tablaBody.innerHTML = "<tr><td colspan='6'>No se pudieron cargar las solicitudes.</td></tr>";
+            tablaBody.innerHTML = "<tr><td colspan='7'>No se pudieron cargar las solicitudes.</td></tr>";
         }
     }
 
