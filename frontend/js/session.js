@@ -21,7 +21,7 @@
     console.log("session.js: logout() ejecutado - limpiando localStorage");
     localStorage.removeItem("user");
     // forzar recarga desde la ruta absoluta
-    window.location.href = "/TALLER/aura-realty/frontend/login.html";
+    window.location.href = "/aura-realty-main/TALLER/frontend/login.html";
   };
 
   // Valida sesión y rol (si requiredRole se proporciona)
@@ -31,13 +31,13 @@
 
     if (!user) {
       console.warn("session.js: usuario no encontrado en localStorage -> redirigiendo a login");
-      window.location.href = "/TALLER/aura-realty/frontend/login.html";
+      window.location.href = "/aura-realty-main/TALLER/frontend/login.html";
       return false;
     }
 
     if (requiredRole && user.rol !== requiredRole) {
       console.warn(`session.js: rol incorrecto (esperado=${requiredRole}, real=${user.rol}) -> redirigiendo a login`);
-      window.location.href = "/TALLER/aura-realty/frontend/login.html";
+      window.location.href = "/aura-realty-main/TALLER/frontend/login.html";
       return false;
     }
 

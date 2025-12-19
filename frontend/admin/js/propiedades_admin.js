@@ -3,10 +3,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = new bootstrap.Modal(document.getElementById("modalPropiedad"));
     const formPropiedad = document.getElementById("formPropiedad");
 
-    const API_LISTAR = "http://localhost/TALLER/aura-realty/api/propiedades/listar.php";
-    const API_CREAR = "http://localhost/TALLER/aura-realty/api/propiedades/crear.php";
-    const API_EDITAR = "http://localhost/TALLER/aura-realty/api/propiedades/editar.php";
-    const API_ELIMINAR = "http://localhost/TALLER/aura-realty/api/propiedades/eliminar.php";
+    const API_LISTAR = "/aura-realty-main/TALLER/api/propiedades/listar.php";
+    const API_CREAR = "/aura-realty-main/TALLER/api/propiedades/crear.php";
+    const API_EDITAR = "/aura-realty-main/TALLER/api/propiedades/editar.php";
+    const API_ELIMINAR = "/aura-realty-main/TALLER/api/propiedades/eliminar.php";
 
     let editId = null;
 

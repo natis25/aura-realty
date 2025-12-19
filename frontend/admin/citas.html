@@ -17,6 +17,10 @@
 <div class="container mt-4">
     <h2 class="mb-4">Gestión de Citas</h2>
 
+    <!-- Mensajes de éxito/error -->
+    <div id="msgSuccess" class="alert alert-success d-none" role="alert"></div>
+    <div id="msgError" class="alert alert-danger d-none" role="alert"></div>
+
     <button class="btn btn-success mb-3" id="btnNuevaCita">Nueva Cita</button>
 
     <div class="table-responsive">
@@ -53,16 +57,13 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="propiedad" class="form-label">Propiedad</label>
-                        <select id="propiedad" class="form-select" required>
-                            <option value="">Cargando propiedades...</option>
-                        </select>
+                        <input type="text" id="propiedad" class="form-control" placeholder="Nombre de la propiedad" required>
+                        <small class="text-muted">Escribe el nombre de la propiedad</small>
                     </div>
                     <div class="mb-3">
                         <label for="cliente" class="form-label">Cliente</label>
-                        <select id="cliente" class="form-select" required>
-                            <option value="">Cargando clientes...</option>
-                        </select>
-                        <small class="text-muted">Si el cliente no aparece, puedes escribir su nombre directamente.</small>
+                        <input type="text" id="cliente" class="form-control" placeholder="Nombre del cliente" required>
+                        <small class="text-muted">Escribe el nombre del cliente</small>
                     </div>
                     <div class="mb-3">
                         <label for="fecha" class="form-label">Fecha</label>

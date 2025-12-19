@@ -1,102 +1,118 @@
-document.addEventListener("DOMContentLoaded", async () => {
-    const tablaBody = document.querySelector("#tablaSolicitudes tbody");
-    const msgError = document.getElementById("msgError");
-    const msgSuccess = document.getElementById("msgSuccess");
+// Constantes globales
+const API_LISTAR = "/aura-realty-main/TALLER/api/solicitudes/listar_admin.php";
+const API_UPDATE = "/aura-realty-main/TALLER/api/solicitudes/actualizar_estado.php";
+const API_AGENTES = "/aura-realty-main/TALLER/api/agentes/listar.php";
 
-    const API_LISTAR = "http://localhost/TALLER/aura-realty/api/solicitudes/listar_admin.php";
-    const API_UPDATE = "http://localhost/TALLER/aura-realty/api/solicitudes/actualizar_estado.php";
-    const API_AGENTES = "http://localhost/TALLER/aura-realty/api/agentes/listar.php";
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("=== DOM CARGADO - INICIANDO SOLICITUDES.JS ===");
 
-    // ==========================
-    // Validar admin
-    // ==========================
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || user.rol !== "admin") {
-        window.location.href = "/TALLER/aura-realty/frontend/login.html";
+    // Verificar elementos inmediatamente
+    const tablaBody = document.getElementById("tbodySolicitudes");
+    console.log("Elemento tbodySolicitudes encontrado:", !!tablaBody);
+
+    if (!tablaBody) {
+        console.error("CRÍTICO: No se encontró tbodySolicitudes");
         return;
     }
 
+    console.log("Iniciando validación y carga de solicitudes...");
+    initSolicitudes();
+});
+
+
+async function initSolicitudes() {
+    console.log("=== INICIANDO initSolicitudes ===");
+
+    // Obtener elementos del DOM
+    const tablaBody = document.getElementById("tbodySolicitudes");
+    const msgError = document.getElementById("msgError");
+    const msgSuccess = document.getElementById("msgSuccess");
+
+    // Variables para el filtro
+    let todasLasSolicitudes = [];
+
+    // La autenticación ya se verifica en index.html con session.js y auth.js
+    console.log("Cargando solicitudes - autenticación ya verificada");
+
     // ==========================
-    // Cargar solicitudes
+    // Cargar solicitudes - VERSIÓN SIMPLIFICADA PARA DEBUG
     // ==========================
-    async function cargarSolicitudes() {
-        tablaBody.innerHTML = "";
-        if (msgError) msgError.classList.add("d-none");
-        if (msgSuccess) msgSuccess.classList.add("d-none");
+    async function cargarSolicitudes(filtrar = false) {
+        console.log("=== INICIANDO CARGA DE SOLICITUDES ===");
+
+        // Limpiar tabla
+        tablaBody.innerHTML = '<tr><td colspan="9" class="text-center">Cargando solicitudes...</td></tr>';
 
         try {
-            const res = await fetch(API_LISTAR);
-            const data = await res.json();
+            console.log("Haciendo petición a:", API_LISTAR);
 
-            if (!data.success) throw new Error(data.message || "Error cargando solicitudes");
+            // Petición simple
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', API_LISTAR + '?t=' + Date.now(), true);
+            xhr.setRequestHeader('Accept', 'application/json');
 
-            if (data.solicitudes.length === 0) {
-                tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>No hay solicitudes registradas.</td></tr>";
-                return;
-            }
+            xhr.onload = function() {
+                console.log("Respuesta recibida. Status:", xhr.status);
+                console.log("Response:", xhr.responseText);
 
-            data.solicitudes.forEach(sol => {
-                const tr = document.createElement("tr");
+                if (xhr.status === 200) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        console.log("JSON parseado:", data);
 
-                tr.innerHTML = `
-                    <td>${sol.id}</td>
-                    <td>${sol.propiedad_titulo}</td>
-                    <td>${sol.cliente_nombre}</td>
-                    <td>${sol.fecha_solicitada}</td>
-                    <td>${sol.hora_solicitada}</td>
-                    <td>${sol.estado}</td>
-                    <td>${sol.mensaje || ""}</td>
-                    <td>${sol.agente_nombre || "-"}</td>
-                    <td>
-                        ${sol.estado === "pendiente" ? `
-                            <button class="btn btn-sm btn-success btnAprobar" data-id="${sol.id}">Aprobar</button>
-                            <button class="btn btn-sm btn-warning btnRechazar" data-id="${sol.id}">Rechazar</button>
-                            <select class="form-select form-select-sm mt-1 btnAsignar" data-id="${sol.id}">
-                                <option value="">Asignar agente</option>
-                            </select>
-                        ` : "" }
-                    </td>
-                `;
+                        if (data.success && data.solicitudes) {
+                            // Limpiar tabla
+                            tablaBody.innerHTML = "";
 
-                tablaBody.appendChild(tr);
-            });
+                            // Mostrar cada solicitud
+                            data.solicitudes.forEach((sol, index) => {
 
-            // ==========================
-            // Eventos
-            // ==========================
-            document.querySelectorAll(".btnAprobar").forEach(btn =>
-                btn.addEventListener("click", () => actualizarEstado(btn.dataset.id, "aceptada"))
-            );
+                                const tr = document.createElement("tr");
+                                tr.innerHTML = `
+                                    <td>${sol.id}</td>
+                                    <td>Propiedad #${sol.propiedad_id}</td>
+                                    <td>Cliente #${sol.usuario_id}</td>
+                                    <td>${sol.fecha_solicitada}</td>
+                                    <td>${sol.hora_solicitada}</td>
+                                    <td><span class="badge bg-${sol.estado === 'pendiente' ? 'warning' : sol.estado === 'aceptada' ? 'success' : 'danger'}">${sol.estado}</span></td>
+                                    <td>${sol.mensaje || ''}</td>
+                                    <td>${sol.agente_asignado || '-'}</td>
+                                    <td>
+                                        ${sol.estado === 'pendiente' ?
+                                            `<button class="btn btn-sm btn-success me-1" onclick="aprobarSolicitud(${sol.id})">Aprobar</button>
+                                             <button class="btn btn-sm btn-danger" onclick="rechazarSolicitud(${sol.id})">Rechazar</button>` :
+                                            '<span class="text-muted">Procesada</span>'
+                                        }
+                                    </td>
+                                `;
+                                tablaBody.appendChild(tr);
+                            });
 
-            document.querySelectorAll(".btnRechazar").forEach(btn =>
-                btn.addEventListener("click", () => actualizarEstado(btn.dataset.id, "rechazada"))
-            );
+                            console.log("=== SOLICITUDES CARGADAS EXITOSAMENTE ===");
+                        } else {
+                            tablaBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error: Datos inválidos de la API</td></tr>';
+                            console.error("Datos inválidos:", data);
+                        }
+                    } catch (parseError) {
+                        tablaBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error: Respuesta no es JSON válido</td></tr>';
+                        console.error("Error parseando JSON:", parseError);
+                    }
+                } else {
+                    tablaBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Error HTTP ${xhr.status}: ${xhr.statusText}</td></tr>`;
+                    console.error("Error HTTP:", xhr.status, xhr.statusText);
+                }
+            };
 
-            // Llenar select de agentes
-            const agentesRes = await fetch(API_AGENTES);
-            const agentesData = await agentesRes.json();
-            if (!agentesData.success) throw new Error("No se pudieron cargar los agentes");
+            xhr.onerror = function() {
+                tablaBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error de conexión</td></tr>';
+                console.error("Error de conexión");
+            };
 
-            document.querySelectorAll(".btnAsignar").forEach(select => {
-                // Limpiar opciones
-                select.innerHTML = "<option value=''>Asignar agente</option>";
-                agentesData.agentes.forEach(a => {
-                    const option = document.createElement("option");
-                    option.value = a.id;
-                    option.textContent = a.nombre;
-                    select.appendChild(option);
-                });
-
-                // Evento de asignación
-                select.addEventListener("change", () => {
-                    const agenteId = select.value;
-                    if (agenteId) actualizarEstado(select.dataset.id, "aceptada", parseInt(agenteId));
-                });
-            });
+            xhr.send();
 
         } catch (error) {
-            console.error(error);
-            tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>Error cargando solicitudes.</td></tr>";
+            tablaBody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error general: ' + error.message + '</td></tr>';
+            console.error("Error general:", error);
         }
     }
 
@@ -126,19 +142,90 @@ document.addEventListener("DOMContentLoaded", async () => {
                 msgSuccess.textContent = "Solicitud actualizada correctamente.";
             }
 
-            await cargarSolicitudes();
+            await cargarSolicitudes(true); // true para usar datos en memoria
         } catch (error) {
             if (msgError) {
                 msgError.classList.remove("d-none");
                 msgError.textContent = error.message;
-            } else {
-                alert(error.message);
-            }
+        }
         }
     }
 
     // ==========================
+    // Evento filtro
+    // ==========================
+    document.getElementById("filtroEstado").addEventListener("change", () => {
+        cargarSolicitudes(true); // true para indicar que es un filtro
+    });
+
+    // ==========================
     // Inicializar
     // ==========================
-    await cargarSolicitudes();
+    console.log("Iniciando carga de solicitudes...");
+    cargarSolicitudes().then(() => {
+        console.log("Solicitudes cargadas exitosamente");
+    }).catch((error) => {
+        console.error("Error al cargar solicitudes:", error);
+        if (msgError) {
+            msgError.classList.remove("d-none");
+            msgError.textContent = "Error al cargar solicitudes: " + error.message;
+        }
+    });
 });
+
+// Funciones globales para los botones
+function aprobarSolicitud(id) {
+    actualizarEstado(id, "aceptada");
+}
+
+function rechazarSolicitud(id) {
+    actualizarEstado(id, "rechazada");
+}
+
+async function actualizarEstado(solicitudId, estado, agenteId = null) {
+    console.log("Actualizando solicitud", solicitudId, "a estado:", estado);
+
+    const payload = {
+        solicitud_id: solicitudId,
+        estado: estado
+    };
+    if (agenteId !== null) payload.agente_id = agenteId;
+
+    try {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API_UPDATE, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                if (data.success) {
+                    console.log("Solicitud actualizada");
+                    if (msgSuccess) {
+                        msgSuccess.classList.remove("d-none");
+                        msgSuccess.textContent = "Solicitud actualizada correctamente.";
+                    }
+                    // Recargar solicitudes
+                    cargarSolicitudes();
+                } else {
+                    console.error("Error actualizando:", data.message);
+                    if (msgError) {
+                        msgError.classList.remove("d-none");
+                        msgError.textContent = data.message;
+                    }
+                }
+            } else {
+                console.error("Error HTTP:", xhr.status);
+            }
+        };
+
+        xhr.send(JSON.stringify(payload));
+
+    } catch (error) {
+        console.error("Error:", error);
+        if (msgError) {
+            msgError.classList.remove("d-none");
+            msgError.textContent = "Error: " + error.message;
+        }
+    }
+}

@@ -39,7 +39,7 @@ if ($password !== $user["contrasena"]) {
     exit;
 }
 
-$token = bin2hex(random_bytes(16));
+$token = bin2hex(openssl_random_pseudo_bytes(16));
 
 echo json_encode([
     "success" => true,

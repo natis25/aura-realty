@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const tablaBody = document.querySelector("#tablaCitasAdmin tbody");
+    const msgError = document.getElementById("msgError");
+    const msgSuccess = document.getElementById("msgSuccess");
     const modal = new bootstrap.Modal(document.getElementById("modalCita"));
     const formCita = document.getElementById("formCita");
 
@@ -10,12 +12,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let solicitudAsignarId = null;
 
-    const API_LISTAR = "http://localhost/TALLER/aura-realty/api/solicitudes/listar_admin.php";
-    const API_CREAR = "http://localhost/TALLER/aura-realty/api/solicitudes/crear_admin.php";
-    const API_UPDATE = "http://localhost/TALLER/aura-realty/api/solicitudes/actualizar_estado.php";
-    const API_AGENTES = "http://localhost/TALLER/aura-realty/api/agentes/listar.php";
-    const API_PROPIEDADES = "http://localhost/TALLER/aura-realty/api/propiedades/listar.php";
-    const API_CLIENTES = "http://localhost/TALLER/aura-realty/api/clientes/listar.php";
+    const API_LISTAR = "/aura-realty-main/TALLER/api/solicitudes/listar_admin.php";
+    const API_CREAR = "/aura-realty-main/TALLER/api/solicitudes/crear_admin.php";
+    const API_UPDATE = "/aura-realty-main/TALLER/api/solicitudes/actualizar_estado.php";
+    const API_AGENTES = "/aura-realty-main/TALLER/api/agentes/listar.php";
+    const API_PROPIEDADES = "/aura-realty-main/TALLER/api/propiedades/listar.php";
+    const API_CLIENTES = "/aura-realty-main/TALLER/api/clientes/listar.php";
 
     let editId = null;
 
@@ -24,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user || user.rol !== "admin") {
-        window.location.href = "/TALLER/aura-realty/frontend/login.html";
+        window.location.href = "/aura-realty-main/TALLER/frontend/login.html";
         return;
     }
 
@@ -33,6 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     async function cargarCitas() {
         tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>Cargando...</td></tr>";
+        if (msgError) msgError.classList.add("d-none");
+        if (msgSuccess) msgSuccess.classList.add("d-none");
+
         try {
             const res = await fetch(API_LISTAR);
             const data = await res.json();
@@ -58,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${s.mensaje || ""}</td>
                     <td>${s.agente_nombre || "-"}</td>
                     <td>
-                        ${s.creada_por === "admin" && s.estado === "pendiente" ? `
+                        ${s.estado === "pendiente" ? `
                             <button class="btn btn-sm btn-primary btnEditar" data-id="${s.id}">Editar</button>
                             <button class="btn btn-sm btn-warning btnCancelar" data-id="${s.id}">Cancelar</button>
                             <button class="btn btn-sm btn-success btnAsignar" data-id="${s.id}">Asignar agente</button>
@@ -93,11 +98,43 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     async function cargarPropiedades() {
         const select = document.getElementById("propiedad");
+        if (!select) {
+            return;
+        }
+
         select.innerHTML = "<option value=''>Cargando...</option>";
 
         try {
-            const res = await fetch(API_PROPIEDADES);
-            const data = await res.json();
+            const xhr = new XMLHttpRequest();
+            const responsePromise = new Promise((resolve, reject) => {
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const data = JSON.parse(xhr.responseText);
+                                resolve(data);
+                            } catch (parseError) {
+                                reject(new Error("Error parseando JSON"));
+                            }
+                        } else {
+                            reject(new Error("Error HTTP"));
+                        }
+                    }
+                };
+                xhr.onerror = () => reject(new Error("Error de red"));
+            });
+
+            xhr.open('GET', API_PROPIEDADES + '?t=' + Date.now(), true);
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.setRequestHeader('Cache-Control', 'no-cache');
+            xhr.timeout = 10000;
+            xhr.send();
+
+            const data = await responsePromise;
+
+            if (!data.success || !data.propiedades) {
+                throw new Error("Datos inválidos");
+            }
 
             select.innerHTML = "<option value=''>Selecciona una propiedad</option>";
             data.propiedades.forEach(p => {
@@ -114,11 +151,43 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     async function cargarClientes() {
         const select = document.getElementById("cliente");
+        if (!select) {
+            return;
+        }
+
         select.innerHTML = "<option value=''>Cargando...</option>";
 
         try {
-            const res = await fetch(API_CLIENTES);
-            const data = await res.json();
+            const xhr = new XMLHttpRequest();
+            const responsePromise = new Promise((resolve, reject) => {
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            try {
+                                const data = JSON.parse(xhr.responseText);
+                                resolve(data);
+                            } catch (parseError) {
+                                reject(new Error("Error parseando JSON"));
+                            }
+                        } else {
+                            reject(new Error("Error HTTP"));
+                        }
+                    }
+                };
+                xhr.onerror = () => reject(new Error("Error de red"));
+            });
+
+            xhr.open('GET', API_CLIENTES + '?t=' + Date.now(), true);
+            xhr.setRequestHeader('Accept', 'application/json');
+            xhr.setRequestHeader('Cache-Control', 'no-cache');
+            xhr.timeout = 10000;
+            xhr.send();
+
+            const data = await responsePromise;
+
+            if (!data.success || !data.clientes) {
+                throw new Error("Datos inválidos");
+            }
 
             select.innerHTML = "<option value=''>Selecciona un cliente</option>";
             data.clientes.forEach(c => {
@@ -137,8 +206,8 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
 
         const payload = {
-            propiedad_id: document.getElementById("propiedad").value,
-            usuario_id: document.getElementById("cliente").value,
+            propiedad_nombre: document.getElementById("propiedad").value,
+            cliente_nombre: document.getElementById("cliente").value,
             fecha_solicitada: document.getElementById("fecha").value,
             hora_solicitada: document.getElementById("hora").value,
             mensaje: document.getElementById("mensaje").value
@@ -159,7 +228,17 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await res.json();
 
-            alert(data.message);
+            if (data.success) {
+                if (msgSuccess) {
+                    msgSuccess.classList.remove("d-none");
+                    msgSuccess.textContent = data.message || "Cita guardada correctamente.";
+                }
+            } else {
+                if (msgError) {
+                    msgError.classList.remove("d-none");
+                    msgError.textContent = data.message || "Error al guardar la cita.";
+                }
+            }
 
             modal.hide();
             formCita.reset();
@@ -174,9 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     // Abrir modal nueva cita
     // ==========================
-    document.getElementById("btnNuevaCita").addEventListener("click", async () => {
-        await cargarPropiedades();
-        await cargarClientes();
+    document.getElementById("btnNuevaCita").addEventListener("click", () => {
+        // Los inputs son de texto, no necesitan cargar opciones
         formCita.reset();
         editId = null;
         modal.show();
@@ -187,17 +265,18 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================
     async function abrirEditar(id) {
         editId = id;
-        await cargarPropiedades();
-        await cargarClientes();
 
         const res = await fetch(API_LISTAR);
         const data = await res.json();
         const cita = data.solicitudes.find(s => s.id == id);
 
-        if (!cita) return alert("Cita no encontrada");
+        if (!cita) return;
 
-        document.getElementById("propiedad").value = cita.propiedad_id;
-        document.getElementById("cliente").value = cita.usuario_id;
+        // Para edición, dejar los inputs vacíos con placeholders indicando qué editar
+        document.getElementById("propiedad").value = "";
+        document.getElementById("propiedad").placeholder = "Editar nombre de propiedad";
+        document.getElementById("cliente").value = "";
+        document.getElementById("cliente").placeholder = "Editar nombre de cliente";
         document.getElementById("fecha").value = cita.fecha_solicitada;
         document.getElementById("hora").value = cita.hora_solicitada;
         document.getElementById("mensaje").value = cita.mensaje || "";
@@ -217,7 +296,19 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await res.json();
-            alert(data.message || data.error);
+
+            if (data.success) {
+                if (msgSuccess) {
+                    msgSuccess.classList.remove("d-none");
+                    msgSuccess.textContent = data.message || "Estado actualizado correctamente.";
+                }
+            } else {
+                if (msgError) {
+                    msgError.classList.remove("d-none");
+                    msgError.textContent = data.message || data.error || "Error al actualizar el estado.";
+                }
+            }
+
             cargarCitas();
 
         } catch (error) {
@@ -235,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch(API_AGENTES);
             const data = await res.json();
 
-            if (!data.success) return alert("No se pudieron cargar los agentes.");
+            if (!data.success) return;
 
             selectAgentes.innerHTML = "<option value=''>Selecciona un agente</option>";
 
@@ -259,7 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const agenteId = selectAgentes.value;
 
         if (!agenteId) {
-            alert("Debes seleccionar un agente.");
             return;
         }
 
@@ -269,13 +359,24 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     solicitud_id: solicitudAsignarId,
-                    estado: "pendiente",
+                    estado: "aceptada",
                     agente_id: parseInt(agenteId)
                 })
             });
 
             const data = await res.json();
-            alert(data.message || data.error);
+
+            if (data.success) {
+                if (msgSuccess) {
+                    msgSuccess.classList.remove("d-none");
+                    msgSuccess.textContent = data.message || "Agente asignado correctamente.";
+                }
+            } else {
+                if (msgError) {
+                    msgError.classList.remove("d-none");
+                    msgError.textContent = data.message || data.error || "Error al asignar agente.";
+                }
+            }
 
             modalAsignar.hide();
             cargarCitas();
