@@ -1,106 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Administrador — Propiedades</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<<link rel="stylesheet" href="css/propiedades.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador — Propiedades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="css/propiedades.css">
 </head>
+
 <body>
-<div class="container mt-5">
-    <h2>Catálogo de Propiedades</h2>
-    <button class="btn btn-success mb-3" id="btnNuevaPropiedad">Nueva Propiedad</button>
+    <div id="navbar-container" style="position: relative; z-index: 100;"></div>
 
-    <input type="text" id="filtroPropiedades" class="form-control mb-3" placeholder="Filtrar por título o ciudad">
+    <div class="container mt-4">
+        <h2>Catálogo de Propiedades</h2>
 
-    <table class="table table-bordered table-striped" id="tablaPropiedades">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Imagen</th>
-                <th>Título</th>
-                <th>Dirección</th>
-                <th>Ciudad</th>
-                <th>Tipo</th>
-                <th>Precio</th>
-                <th>Área (m²)</th>
-                <th>Habitaciones</th>
-                <th>Baños</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
+        <div class="d-flex justify-content-between mb-4">
+            <input type="text" id="filtroPropiedades" class="form-control w-50"
+                placeholder="Buscar por título o ciudad...">
+            <button class="btn btn-primary-custom" id="btnNuevaPropiedad">
+                <i class="fa-solid fa-plus"></i> Añadir Propiedad
+            </button>
 
-<!-- Modal Crear/Editar Propiedad -->
-<div class="modal fade" id="modalPropiedad" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form id="formPropiedad" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nueva Propiedad</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="titulo" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="titulo" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="ciudad" class="form-label">Ciudad</label>
-                            <input type="text" class="form-control" id="ciudad" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="direccion" class="form-label">Dirección</label>
-                            <input type="text" class="form-control" id="direccion">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="tipo" class="form-label">Tipo</label>
-                            <select class="form-select" id="tipo">
-                                <option value="venta">Venta</option>
-                                <option value="alquiler">Alquiler</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="precio" class="form-label">Precio</label>
-                            <input type="number" class="form-control" id="precio" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="area" class="form-label">Área (m²)</label>
-                            <input type="number" class="form-control" id="area" required>
-                        </div>
-                        <div class="col-md-2">
-                            <label for="habitaciones" class="form-label">Habitaciones</label>
-                            <input type="number" class="form-control" id="habitaciones">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="banos" class="form-label">Baños</label>
-                            <input type="number" class="form-control" id="banos">
-                        </div>
-                        <div class="col-12">
-                            <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" id="descripcion"></textarea>
-                        </div>
-                        <div class="col-12">
-                            <label for="imagen" class="form-label">Imagen principal</label>
-                            <input type="file" class="form-control" id="imagen" accept="image/*">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            </form>
+            <a href="/aura-realty/aura-realty/frontend/admin/panelControl.html"
+                class="btn btn-outline-dark px-4 rounded-pill">
+                <i class="fa-solid fa-chart-line me-2"></i>Panel Admin
+            </a>
+        </div>
+
+
+
+        <div id="propiedadesContainer" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/propiedades_admin.js"></script>
+    <div class="modal fade" id="modalPropiedad" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form id="formPropiedad" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Gestión de Propiedad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Título</label><input type="text"
+                                    class="form-control" id="titulo" required></div>
+                            <div class="col-md-6"><label class="form-label">Descripción</label><input type="text"
+                                    class="form-control" id="descripcion"></div>
+                            <div class="col-md-6"><label class="form-label">Ciudad</label><input type="text"
+                                    class="form-control" id="ciudad" required></div>
+                            <div class="col-md-6"><label class="form-label">Dirección</label><input type="text"
+                                    class="form-control" id="direccion"></div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" id="tipo">
+                                    <option value="venta">Venta</option>
+                                    <option value="alquiler">Alquiler</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6" id="divDisponible">
+                                <label class="form-label">Disponibilidad</label>
+                                <select class="form-select" id="disponible">
+                                    <option value="1">Activa</option>
+                                    <option value="0">Vendida</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4"><label class="form-label">Precio</label><input type="number"
+                                    class="form-control" id="precio" required></div>
+                            <div class="col-md-4"><label class="form-label">Área (m²)</label><input type="number"
+                                    class="form-control" id="area" required></div>
+                            <div class="col-md-2"><label class="form-label">Hab.</label><input type="number"
+                                    class="form-control" id="habitaciones"></div>
+                            <div class="col-md-2"><label class="form-label">Baños</label><input type="number"
+                                    class="form-control" id="banos"></div>
+                            <div class="col-12"><label class="form-label">Imagen</label><input type="file"
+                                    class="form-control" id="imagen" accept="image/*"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary-custom">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/components/navbar.js"></script>
+    <script src="js/propiedades_admin.js"></script>
 </body>
+
 </html>

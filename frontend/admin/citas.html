@@ -1,122 +1,791 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Citas - Administración</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #022249;
+            --primary-light: #0a3a7a;
+            --primary-dark: #011630;
+            --secondary-color: #f8f9fa;
+            --accent-color: #ff7e30;
+            --text-color: #333;
+            --light-gray: #f0f3f7;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(2, 34, 73, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .header-container {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            padding: 2rem 1rem 3rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .header-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .cita-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cita-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(2, 34, 73, 0.12);
+        }
+
+        .cita-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--primary-color);
+        }
+
+        .cita-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .cita-id {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .cita-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+        }
+
+        .status-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmada {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-completada {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-cancelada {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .cita-details {
+            margin-bottom: 1.25rem;
+        }
+
+        .detail-item {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-icon {
+            width: 30px;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #777;
+            margin-bottom: 0.15rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+        }
+
+        .cita-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-custom:hover {
+            background-color: var(--primary-light);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 34, 73, 0.15);
+        }
+
+        .btn-outline-custom {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-outline-custom:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent-color), #ff9a5a);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-accent:hover {
+            background: linear-gradient(135deg, #ff6a0d, #ff8a3d);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 126, 48, 0.25);
+        }
+
+        .no-citas {
+            text-align: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+
+        .no-citas-icon {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        /* ESTILOS MEJORADOS PARA EL MODAL */
+        .modal-cita {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .modal-header-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            padding: 1.5rem;
+            border-bottom: none;
+            position: relative;
+        }
+
+        .modal-header-custom::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 5%;
+            width: 90%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            filter: blur(5px);
+        }
+
+        .modal-title-custom {
+            font-weight: 700;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-body-custom {
+            padding: 2rem;
+            background-color: #f8fafc;
+        }
+
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .form-section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-label-custom {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control-custom,
+        .form-select-custom {
+            border: 2px solid #e1e5eb;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #fff;
+        }
+
+        .form-control-custom:focus,
+        .form-select-custom:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(2, 34, 73, 0.15);
+            outline: none;
+        }
+
+        .form-control-custom:hover,
+        .form-select-custom:hover {
+            border-color: #b8c1cc;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            font-size: 1rem;
+            z-index: 10;
+        }
+
+        .input-with-icon .form-control,
+        .input-with-icon .form-select {
+            padding-left: 40px;
+        }
+
+        .form-text-custom {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .modal-footer-custom {
+            background-color: #f8fafc;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Estilos para el modal de asignar agente */
+        .modal-asignar {
+            border-radius: var(--border-radius);
+        }
+
+        .agente-select-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+        }
+
+        .agente-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .agente-option:hover {
+            background-color: #f0f7ff;
+            border-color: #d1e3ff;
+        }
+
+        .agente-option.selected {
+            background-color: #e6f2ff;
+            border-color: var(--primary-color);
+        }
+
+        .agente-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .agente-info h6 {
+            margin: 0;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .agente-info small {
+            color: #6c757d;
+        }
+
+        .toast-custom {
+            border-left: 4px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .citas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .citas-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header-container {
+                padding: 1.5rem 1rem 2rem;
+            }
+
+            .modal-body-custom {
+                padding: 1.5rem;
+            }
+
+            .form-section {
+                padding: 1.25rem;
+            }
+        }
+
         /* Estilo opcional para toasts */
         #toastContainer .toast {
             min-width: 250px;
-            box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.1);
+            box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
         }
     </style>
 </head>
+
 <body>
-<div class="container mt-4">
-    <h2 class="mb-4">Gestión de Citas</h2>
-
-    <button class="btn btn-success mb-3" id="btnNuevaCita">Nueva Cita</button>
-
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="tablaCitasAdmin">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Propiedad</th>
-                    <th>Cliente</th>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Estado</th>
-                    <th>Mensaje</th>
-                    <th>Agente</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Se llenará dinámicamente -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Modal para crear/editar cita -->
-<div class="modal fade" id="modalCita" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="formCita">
-                <div class="modal-header">
-                    <h5 class="modal-title">Nueva Cita</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div id="navbar-container"></div>
+    <script src="/aura-realty/aura-realty/assets/js/components/navbar.js"></script>
+    <!-- Encabezado -->
+    <div class="header-container">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="header-title">Gestión de Citas</h1>
+                    <p class="header-subtitle">Administra y organiza todas las citas de propiedades desde un solo lugar.
+                    </p>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="propiedad" class="form-label">Propiedad</label>
-                        <select id="propiedad" class="form-select" required>
-                            <option value="">Cargando propiedades...</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="cliente" class="form-label">Cliente</label>
-                        <select id="cliente" class="form-select" required>
-                            <option value="">Cargando clientes...</option>
-                        </select>
-                        <small class="text-muted">Si el cliente no aparece, puedes escribir su nombre directamente.</small>
-                    </div>
-                    <div class="mb-3">
-                        <label for="fecha" class="form-label">Fecha</label>
-                        <input type="date" id="fecha" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="hora" class="form-label">Hora</label>
-                        <input type="time" id="hora" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="mensaje" class="form-label">Mensaje</label>
-                        <textarea id="mensaje" class="form-control" rows="3"></textarea>
-                    </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <button class="btn btn-accent" id="btnNuevaCita">
+                        <i class="fas fa-plus me-2"></i>Nueva Cita
+                    </button>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal: Asignar Agente -->
-<div class="modal fade" id="modalAsignar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Asignar Agente</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Selecciona un agente:</label>
-                    <select id="selectAgentes" class="form-select">
-                        <option value="">Cargando agentes...</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button id="btnAsignarConfirmar" class="btn btn-success">Asignar</button>
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Contenedor de citas -->
+        <h4 class="mb-3" style="color: var(--primary-color);">
+            <i class="fas fa-list-alt me-2"></i>Citas Programadas
+        </h4>
 
-<!-- Contenedor para los toasts -->
-<div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+        <!-- Este contenedor reemplaza la tabla -->
+        <div class="citas-container" id="citasContainer">
+            <!-- Las citas se cargarán aquí dinámicamente por tu js/citas_admin.js -->
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/citas_admin.js"></script>
+        <!-- Mensaje cuando no hay citas -->
+        <div class="no-citas" id="noCitasMessage">
+            <div class="no-citas-icon">
+                <i class="fas fa-calendar-times"></i>
+            </div>
+            <h4>No hay citas para mostrar</h4>
+            <p class="text-muted">No se encontraron citas en el sistema.</p>
+        </div>
+    </div>
+
+    <!-- Modal para crear/editar cita - MEJORADO -->
+    <div class="modal fade" id="modalCita" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content modal-cita">
+                <form id="formCita">
+                    <div class="modal-header modal-header-custom">
+                        <h5 class="modal-title modal-title-custom">
+                            <i class="fas fa-calendar-plus"></i>
+                            <span id="modalCitaTitle">Nueva Cita</span>
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body modal-body-custom">
+                        <!-- Sección: Información de la Propiedad y Cliente -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-info-circle"></i>Información Principal
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="propiedad" class="form-label form-label-custom">
+                                        <i class="fas fa-home"></i>Propiedad
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-building input-icon"></i>
+                                        <select id="propiedad" class="form-select form-select-custom" required>
+                                            <option value="">Seleccione una propiedad</option>
+                                            <option value="1">Casa en La Molina - Ref. 2456</option>
+                                            <option value="2">Departamento en Miraflores - Ref. 1892</option>
+                                            <option value="3">Oficina en San Isidro - Ref. 3345</option>
+                                            <option value="4">Local Comercial en Surco - Ref. 4567</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-text-custom">
+                                        <i class="fas fa-info-circle"></i>Seleccione la propiedad a visitar
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="cliente" class="form-label form-label-custom">
+                                        <i class="fas fa-user"></i>Cliente
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-users input-icon"></i>
+                                        <select id="cliente" class="form-select form-select-custom" required>
+                                            <option value="">Seleccione un cliente</option>
+                                            <option value="1">Juan Pérez</option>
+                                            <option value="2">María González</option>
+                                            <option value="3">Roberto Sánchez</option>
+                                            <option value="4">Laura Fernández</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-text-custom">
+                                        <i class="fas fa-lightbulb"></i>Si no encuentra al cliente, puede escribir su
+                                        nombre
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Fecha y Hora -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-clock"></i>Fecha y Hora de la Cita
+                            </h6>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="fecha" class="form-label form-label-custom">
+                                        <i class="fas fa-calendar-alt"></i>Fecha
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-calendar-day input-icon"></i>
+                                        <input type="date" id="fecha" class="form-control form-control-custom" required>
+                                    </div>
+                                    <div class="form-text-custom">
+                                        <i class="fas fa-calendar-check"></i>Seleccione la fecha para la visita
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="hora" class="form-label form-label-custom">
+                                        <i class="fas fa-clock"></i>Hora
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-hourglass-half input-icon"></i>
+                                        <input type="time" id="hora" class="form-control form-control-custom" required>
+                                    </div>
+                                    <div class="form-text-custom">
+                                        <i class="fas fa-business-time"></i>Horario de atención: 9:00 AM - 6:00 PM
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección: Notas Adicionales -->
+                        <div class="form-section">
+                            <h6 class="form-section-title">
+                                <i class="fas fa-sticky-note"></i>Notas y Observaciones
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="mensaje" class="form-label form-label-custom">
+                                    <i class="fas fa-comment-alt"></i>Mensaje o Instrucciones
+                                </label>
+                                <textarea id="mensaje" class="form-control form-control-custom" rows="4"
+                                    placeholder="Agregue cualquier información adicional, requerimientos especiales, o instrucciones para la visita..."></textarea>
+                                <div class="form-text-custom">
+                                    <i class="fas fa-edit"></i>Esta información será compartida con el agente asignado
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información de resumen (opcional, se puede activar con JS) -->
+                        <div class="alert alert-info" style="border-radius: 8px; border-left: 4px solid #17a2b8;">
+                            <div class="d-flex">
+                                <i class="fas fa-lightbulb me-2" style="font-size: 1.2rem; color: #17a2b8;"></i>
+                                <div>
+                                    <strong>Recomendación:</strong> Programe la cita con al menos 24 horas de
+                                    anticipación para una mejor organización.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer modal-footer-custom">
+                        <button type="submit" class="btn btn-custom btn-icon">
+                            <i class="fas fa-save"></i>Guardar Cita
+                        </button>
+                        <button type="button" class="btn btn-outline-custom btn-icon" data-bs-dismiss="modal">
+                            <i class="fas fa-times"></i>Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Asignar Agente - MEJORADO -->
+    <div class="modal fade" id="modalAsignar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content modal-asignar">
+                <div class="modal-header modal-header-custom">
+                    <h5 class="modal-title modal-title-custom">
+                        <i class="fas fa-user-tie"></i>Asignar Agente a Cita
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body modal-body-custom">
+                    <div class="agente-select-card">
+                        <h6 class="form-section-title mb-3">
+                            <i class="fas fa-users"></i>Seleccione un Agente Disponible
+                        </h6>
+
+                        <!-- Opciones de agentes con cards -->
+                        <div class="agente-option selected" data-agente-id="1">
+                            <div class="agente-avatar">MR</div>
+                            <div class="agente-info">
+                                <h6>María Rodríguez</h6>
+                                <small>Disponibilidad: Alta • Especialista en propiedades residenciales</small>
+                            </div>
+                        </div>
+
+                        <div class="agente-option" data-agente-id="2">
+                            <div class="agente-avatar">CL</div>
+                            <div class="agente-info">
+                                <h6>Carlos López</h6>
+                                <small>Disponibilidad: Media • Experto en propiedades comerciales</small>
+                            </div>
+                        </div>
+
+                        <div class="agente-option" data-agente-id="3">
+                            <div class="agente-avatar">AG</div>
+                            <div class="agente-info">
+                                <h6>Ana García</h6>
+                                <small>Disponibilidad: Alta • Especialista en propiedades de lujo</small>
+                            </div>
+                        </div>
+
+                        <div class="agente-option" data-agente-id="4">
+                            <div class="agente-avatar">JM</div>
+                            <div class="agente-info">
+                                <h6>Javier Martínez</h6>
+                                <small>Disponibilidad: Baja • Experto en alquileres</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success" style="border-radius: 8px; border-left: 4px solid #28a745;">
+                        <div class="d-flex">
+                            <i class="fas fa-bell me-2" style="font-size: 1.2rem; color: #28a745;"></i>
+                            <div>
+                                <strong>Notificación automática:</strong> El agente seleccionado recibirá una
+                                notificación sobre esta cita y podrá confirmar su disponibilidad.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer modal-footer-custom">
+                    <button id="btnAsignarConfirmar" class="btn btn-custom btn-icon">
+                        <i class="fas fa-check-circle"></i>Confirmar Asignación
+                    </button>
+                    <button class="btn btn-outline-custom btn-icon" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i>Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor para los toasts -->
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script básico para mejorar la interacción del formulario
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalCita = new bootstrap.Modal(document.getElementById('modalCita'));
+            const modalAsignar = new bootstrap.Modal(document.getElementById('modalAsignar'));
+            const btnNuevaCita = document.getElementById('btnNuevaCita');
+            const formCita = document.getElementById('formCita');
+            const fechaInput = document.getElementById('fecha');
+
+            // Establecer fecha mínima como hoy
+            const today = new Date().toISOString().split('T')[0];
+            fechaInput.min = today;
+
+            // Mejorar interacción de selección de agentes
+            document.querySelectorAll('.agente-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    // Remover selección previa
+                    document.querySelectorAll('.agente-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    // Agregar selección actual
+                    this.classList.add('selected');
+                });
+            });
+
+            // Evento para abrir modal de nueva cita
+            btnNuevaCita.addEventListener('click', function () {
+                formCita.reset();
+                document.getElementById('modalCitaTitle').textContent = 'Nueva Cita';
+                modalCita.show();
+            });
+
+            // Manejar envío del formulario (esto deberá conectarse con tu backend)
+            formCita.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // Aquí iría la lógica para guardar la cita
+                // Por ahora solo cerramos el modal
+                modalCita.hide();
+
+                // Mostrar toast de éxito (puedes integrar esto con tu sistema)
+                showToast('Cita creada exitosamente', 'success');
+            });
+
+            // Función para mostrar toasts (puedes integrarla con tu sistema)
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                const toastId = 'toast-' + Date.now();
+
+                const toastHtml = `
+                    <div id="${toastId}" class="toast toast-custom align-items-center text-white bg-${type}" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `;
+
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+
+                const toastElement = document.getElementById(toastId);
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+
+                // Eliminar el toast del DOM después de que se oculta
+                toastElement.addEventListener('hidden.bs.toast', function () {
+                    toastElement.remove();
+                });
+            }
+
+            // Mostrar toast de bienvenida
+            setTimeout(() => {
+                showToast('Sistema de citas cargado correctamente', 'info');
+            }, 1000);
+        });
+    </script>
+    <script src="js/citas_admin.js"></script>
 </body>
+
 </html>

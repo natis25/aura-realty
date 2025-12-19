@@ -21,7 +21,7 @@
     console.log("session.js: logout() ejecutado - limpiando localStorage");
     localStorage.removeItem("user");
     // forzar recarga desde la ruta absoluta
-    window.location.href = "/TALLER/aura-realty/frontend/login.html";
+    window.location.href = "/aura/aura-realty/frontend/login.html";
   };
 
   // Valida sesión y rol (si requiredRole se proporciona)

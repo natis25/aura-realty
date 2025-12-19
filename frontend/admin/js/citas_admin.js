@@ -1,292 +1,218 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const tablaBody = document.querySelector("#tablaCitasAdmin tbody");
-    const modal = new bootstrap.Modal(document.getElementById("modalCita"));
+    if (!window.checkAuth("admin")) return; 
+
+    // 1. Referencias al DOM    
+    const citasContainer = document.getElementById("citasContainer");
+    const noCitasMessage = document.getElementById("noCitasMessage");
     const formCita = document.getElementById("formCita");
+    const modalCitaEl = document.getElementById("modalCita");
+    const modalCita = new bootstrap.Modal(modalCitaEl);
 
-    // Modal asignar agente
-    const modalAsignar = new bootstrap.Modal(document.getElementById("modalAsignar"));
-    const selectAgentes = document.getElementById("selectAgentes");
-    const btnAsignarConfirmar = document.getElementById("btnAsignarConfirmar");
+    // 2. Rutas API
+    const API_BASE = "/aura-realty/aura-realty/api";
+    const API_LISTAR = `${API_BASE}/citas/listar.php`;
+    const API_CREAR = `${API_BASE}/citas/crear.php`;
+    const API_AGENTES = `${API_BASE}/agentes/listar.php`;
+    const API_PROPIEDADES = `${API_BASE}/propiedades/listar.php`;
+    const API_CLIENTES = `${API_BASE}/clientes/listar.php`;
+    const API_UPDATE_ESTADO = `${API_BASE}/citas/actualizar_estado.php`;
 
-    let solicitudAsignarId = null;
-
-    const API_LISTAR = "http://localhost/TALLER/aura-realty/api/solicitudes/listar_admin.php";
-    const API_CREAR = "http://localhost/TALLER/aura-realty/api/solicitudes/crear_admin.php";
-    const API_UPDATE = "http://localhost/TALLER/aura-realty/api/solicitudes/actualizar_estado.php";
-    const API_AGENTES = "http://localhost/TALLER/aura-realty/api/agentes/listar.php";
-    const API_PROPIEDADES = "http://localhost/TALLER/aura-realty/api/propiedades/listar.php";
-    const API_CLIENTES = "http://localhost/TALLER/aura-realty/api/clientes/listar.php";
-
-    let editId = null;
-
-    // ==========================
-    // Validar admin
-    // ==========================
+    // 3. Validar Sesión de Administrador y Token
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || user.rol !== "admin") {
-        window.location.href = "/TALLER/aura-realty/frontend/login.html";
+    const token = localStorage.getItem("token");
+
+    // Verificamos si el rol es el número 1 (admin) o la palabra "admin"
+    const isAdmin = user && (user.rol === "admin" || user.rol_id == 1);
+
+    if (!user || user.rol !== "admin" || !token) {
+        window.location.href = "/aura-realty/aura-realty/frontend/login.html";
         return;
     }
 
-    // ==========================
-    // Cargar citas
-    // ==========================
+    // ============================================================
+    // CARGAR CITAS (Renderizado de Cards con Token)
+    // ============================================================
     async function cargarCitas() {
-        tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>Cargando...</td></tr>";
+        citasContainer.innerHTML = '<div class="text-center w-100"><div class="spinner-border text-primary" role="status"></div></div>';
+
         try {
-            const res = await fetch(API_LISTAR);
-            const data = await res.json();
+            const res = await fetch(API_LISTAR, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                }
+            });
 
-            if (!data.success) throw new Error(data.message);
-
-            if (data.solicitudes.length === 0) {
-                tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>No hay citas registradas.</td></tr>";
+            // Si el servidor responde 401, redirigir al login
+            if (res.status === 401) {
+                localStorage.removeItem("token");
+                window.location.href = "/aura-realty/aura-realty/frontend/login.html";
                 return;
             }
 
-            tablaBody.innerHTML = "";
-            data.solicitudes.forEach(s => {
-                const tr = document.createElement("tr");
+            const data = await res.json();
 
-                tr.innerHTML = `
-                    <td>${s.id}</td>
-                    <td>${s.propiedad_titulo}</td>
-                    <td>${s.cliente_nombre}</td>
-                    <td>${s.fecha_solicitada}</td>
-                    <td>${s.hora_solicitada}</td>
-                    <td>${s.estado}</td>
-                    <td>${s.mensaje || ""}</td>
-                    <td>${s.agente_nombre || "-"}</td>
-                    <td>
-                        ${s.creada_por === "admin" && s.estado === "pendiente" ? `
-                            <button class="btn btn-sm btn-primary btnEditar" data-id="${s.id}">Editar</button>
-                            <button class="btn btn-sm btn-warning btnCancelar" data-id="${s.id}">Cancelar</button>
-                            <button class="btn btn-sm btn-success btnAsignar" data-id="${s.id}">Asignar agente</button>
-                        ` : ""}
-                    </td>
+            if (!data.citas || data.citas.length === 0) {
+                citasContainer.innerHTML = "";
+                noCitasMessage.style.display = "block";
+                return;
+            }
+
+            noCitasMessage.style.display = "none";
+            citasContainer.innerHTML = "";
+
+            data.citas.forEach(cita => {
+                const card = document.createElement("div");
+                card.className = "cita-card";
+
+                const statusClass = `status-${cita.estado.toLowerCase().replace(' ', '-')}`;
+
+                card.innerHTML = `
+                    <div class="cita-header">
+                        <span class="cita-id">#${cita.id}</span>
+                        <span class="cita-status ${statusClass}">${cita.estado.toUpperCase()}</span>
+                    </div>
+                    <div class="cita-details">
+                        <div class="detail-item">
+                            <i class="fas fa-home detail-icon"></i>
+                            <div class="detail-content">
+                                <div class="detail-label">Propiedad</div>
+                                <div class="detail-value">${cita.propiedad}</div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-user detail-icon"></i>
+                            <div class="detail-content">
+                                <div class="detail-label">Cliente</div>
+                                <div class="detail-value">${cita.cliente}</div>
+                            </div>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-alt detail-icon"></i>
+                            <div class="detail-content">
+                                <div class="detail-label">Fecha y Hora</div>
+                                <div class="detail-value">${cita.fecha} a las ${cita.hora}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cita-actions">
+                        <button class="btn-custom btn-sm" onclick="cambiarEstado(${cita.id}, 'finalizada')">Finalizar</button>
+                        <button class="btn-outline-custom btn-sm" onclick="cambiarEstado(${cita.id}, 'cancelada')">Cancelar</button>
+                    </div>
                 `;
-
-                tablaBody.appendChild(tr);
+                citasContainer.appendChild(card);
             });
-
-            // Eventos
-            document.querySelectorAll(".btnEditar").forEach(btn => {
-                btn.addEventListener("click", () => abrirEditar(btn.dataset.id));
-            });
-
-            document.querySelectorAll(".btnCancelar").forEach(btn => {
-                btn.addEventListener("click", () => actualizarEstado(btn.dataset.id, "cancelada"));
-            });
-
-            document.querySelectorAll(".btnAsignar").forEach(btn => {
-                btn.addEventListener("click", () => abrirAsignacion(btn.dataset.id));
-            });
-
         } catch (error) {
-            console.error(error);
-            tablaBody.innerHTML = "<tr><td colspan='9' class='text-center'>Error cargando citas.</td></tr>";
+            console.error("Error cargando citas:", error);
+            citasContainer.innerHTML = '<div class="alert alert-danger">Error al conectar con el servidor.</div>';
         }
     }
 
-    // ==========================
-    // Cargar propiedades
-    // ==========================
-    async function cargarPropiedades() {
-        const select = document.getElementById("propiedad");
-        select.innerHTML = "<option value=''>Cargando...</option>";
+    // ============================================================
+    // GUARDAR NUEVA CITA (Envío de IDs y Token)
+    // ============================================================
+    if (formCita) {
+        formCita.addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-        try {
-            const res = await fetch(API_PROPIEDADES);
-            const data = await res.json();
+            const payload = {
+                // Se envía null si el admin crea la cita directamente sin una solicitud previa
+                solicitud_id: document.getElementById("solicitud_id") ? document.getElementById("solicitud_id").value : null,
+                propiedad_id: document.getElementById("propiedad").value,
+                cliente_id: document.getElementById("cliente").value,
+                fecha: document.getElementById("fecha").value,
+                hora: document.getElementById("hora").value,
+                mensaje: document.getElementById("mensaje").value
+            };
 
-            select.innerHTML = "<option value=''>Selecciona una propiedad</option>";
-            data.propiedades.forEach(p => {
-                select.innerHTML += `<option value="${p.id}">${p.titulo}</option>`;
-            });
+            try {
+                const res = await fetch(API_CREAR, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-        } catch (error) {
-            select.innerHTML = "<option value=''>Error cargando propiedades</option>";
-        }
+                const data = await res.json();
+
+                if (data.status === 'success' || data.success) {
+                    modalCita.hide();
+                    formCita.reset();
+                    cargarCitas();
+                    alert(data.mensaje || "Cita registrada con éxito");
+                } else {
+                    alert("Error: " + (data.error || data.message));
+                }
+            } catch (error) {
+                console.error("Error al guardar:", error);
+            }
+        });
     }
 
-    // ==========================
-    // Cargar clientes
-    // ==========================
-    async function cargarClientes() {
-        const select = document.getElementById("cliente");
-        select.innerHTML = "<option value=''>Cargando...</option>";
+    // ============================================================
+    // ACTUALIZAR ESTADO (Global)
+    // ============================================================
+    window.cambiarEstado = async (id, nuevoEstado) => {
+        if (!confirm(`¿Seguro que deseas marcar esta cita como ${nuevoEstado}?`)) return;
 
         try {
-            const res = await fetch(API_CLIENTES);
-            const data = await res.json();
-
-            select.innerHTML = "<option value=''>Selecciona un cliente</option>";
-            data.clientes.forEach(c => {
-                select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-            });
-
-        } catch (error) {
-            select.innerHTML = "<option value=''>Error cargando clientes</option>";
-        }
-    }
-
-    // ==========================
-    // Crear / Editar cita
-    // ==========================
-    formCita.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const payload = {
-            propiedad_id: document.getElementById("propiedad").value,
-            usuario_id: document.getElementById("cliente").value,
-            fecha_solicitada: document.getElementById("fecha").value,
-            hora_solicitada: document.getElementById("hora").value,
-            mensaje: document.getElementById("mensaje").value
-        };
-
-        let url = API_CREAR;
-        if (editId) {
-            url = API_UPDATE;
-            payload.solicitud_id = editId;
-            payload.estado = "pendiente";
-        }
-
-        try {
-            const res = await fetch(url, {
+            const res = await fetch(API_UPDATE_ESTADO, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
+                body: JSON.stringify({ id: id, estado: nuevoEstado })
             });
             const data = await res.json();
 
-            alert(data.message);
-
-            modal.hide();
-            formCita.reset();
-            editId = null;
-            cargarCitas();
-
+            if (data.status === 'success') {
+                cargarCitas();
+            } else {
+                alert(data.error || "Error al actualizar el estado");
+            }
         } catch (error) {
-            console.error(error);
+            console.error("Error en la actualización:", error);
         }
-    });
+    };
 
-    // ==========================
-    // Abrir modal nueva cita
-    // ==========================
-    document.getElementById("btnNuevaCita").addEventListener("click", async () => {
-        await cargarPropiedades();
-        await cargarClientes();
+    // ============================================================
+    // CARGAR SELECTS (Datos Reales de la BD)
+    // ============================================================
+    async function cargarSelects() {
+        try {
+            // Cargar Propiedades
+            const resP = await fetch(API_PROPIEDADES, { headers: { "Authorization": "Bearer " + token } });
+            const dataP = await resP.json();
+            const selectP = document.getElementById("propiedad");
+            selectP.innerHTML = '<option value="">Seleccione una propiedad...</option>';
+            dataP.propiedades.forEach(p => {
+                selectP.innerHTML += `<option value="${p.id}">${p.titulo}</option>`;
+            });
+
+            // Cargar Clientes
+            const resC = await fetch(API_CLIENTES, { headers: { "Authorization": "Bearer " + token } });
+            const dataC = await resC.json();
+            const selectC = document.getElementById("cliente");
+            selectC.innerHTML = '<option value="">Seleccione un cliente...</option>';
+            dataC.clientes.forEach(c => {
+                selectC.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+            });
+        } catch (error) {
+            console.error("Error cargando selects:", error);
+        }
+    }
+
+    // Evento para abrir modal de nueva cita
+    document.getElementById("btnNuevaCita").addEventListener("click", () => {
+        cargarSelects();
         formCita.reset();
-        editId = null;
-        modal.show();
+        modalCita.show();
     });
 
-    // ==========================
-    // Editar cita
-    // ==========================
-    async function abrirEditar(id) {
-        editId = id;
-        await cargarPropiedades();
-        await cargarClientes();
-
-        const res = await fetch(API_LISTAR);
-        const data = await res.json();
-        const cita = data.solicitudes.find(s => s.id == id);
-
-        if (!cita) return alert("Cita no encontrada");
-
-        document.getElementById("propiedad").value = cita.propiedad_id;
-        document.getElementById("cliente").value = cita.usuario_id;
-        document.getElementById("fecha").value = cita.fecha_solicitada;
-        document.getElementById("hora").value = cita.hora_solicitada;
-        document.getElementById("mensaje").value = cita.mensaje || "";
-
-        modal.show();
-    }
-
-    // ==========================
-    // Cancelar cita
-    // ==========================
-    async function actualizarEstado(id, estado) {
-        try {
-            const res = await fetch(API_UPDATE, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ solicitud_id: id, estado })
-            });
-
-            const data = await res.json();
-            alert(data.message || data.error);
-            cargarCitas();
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    // ==========================
-    // Abrir modal Asignación bonita
-    // ==========================
-    async function abrirAsignacion(solicitudId) {
-        solicitudAsignarId = solicitudId;
-
-        try {
-            const res = await fetch(API_AGENTES);
-            const data = await res.json();
-
-            if (!data.success) return alert("No se pudieron cargar los agentes.");
-
-            selectAgentes.innerHTML = "<option value=''>Selecciona un agente</option>";
-
-            data.agentes.forEach(a => {
-                selectAgentes.innerHTML += `
-                    <option value="${a.id}">${a.nombre}</option>
-                `;
-            });
-
-            modalAsignar.show();
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    // ==========================
-    // Confirmar asignación
-    // ==========================
-    btnAsignarConfirmar.addEventListener("click", async () => {
-        const agenteId = selectAgentes.value;
-
-        if (!agenteId) {
-            alert("Debes seleccionar un agente.");
-            return;
-        }
-
-        try {
-            const res = await fetch(API_UPDATE, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    solicitud_id: solicitudAsignarId,
-                    estado: "pendiente",
-                    agente_id: parseInt(agenteId)
-                })
-            });
-
-            const data = await res.json();
-            alert(data.message || data.error);
-
-            modalAsignar.hide();
-            cargarCitas();
-
-        } catch (error) {
-            console.error(error);
-        }
-    });
-
-    // ==========================
-    // Inicializar
-    // ==========================
+    // Inicializar carga de datos
     cargarCitas();
 });
