@@ -2,16 +2,33 @@ body {
     background: url('../images/loginBg.jpg') no-repeat center center fixed;
     background-size: cover;
     height: 100vh;
-    display: flex;
+    margin: 0;
+    position: relative;
     align-items: center;
     justify-content: center;
     font-family: 'Poppins', sans-serif;
-    margin: 0;
 }
+
+/* Nueva clase para centrar el contenido debajo del navbar */
+.main-container {
+    display: flex;
+    flex-direction: column; /* Alinea los elementos internamente en columna */
+    align-items: center;    /* Centrado horizontal */
+    justify-content: center; /* Centrado vertical */
+    
+    /* Calculamos el alto: 100% de la pantalla menos el alto del navbar */
+    min-height: calc(100vh - 80px); 
+    width: 100%;
+    
+    position: relative;
+    z-index: 2;
+    padding: 20px; /* Espacio de seguridad para móviles */
+}
+
 
 body::before {
     content: "";
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;

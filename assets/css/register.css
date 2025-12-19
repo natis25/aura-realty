@@ -1,15 +1,41 @@
 body {
-    /* Buscamos la imagen subiendo un nivel a assets y entrando a images */
-    background: url('../images/registerBg.jpg') no-repeat center;
+    background: url('../images/registerBg.jpg') no-repeat center center fixed;
     background-size: cover;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0; /* Elimina márgenes blancos alrededor */
+    padding: 0;
     font-family: 'Poppins', sans-serif;
+    display: block; /* El navbar ocupará su lugar arriba y el resto bajará */
 }
 
-.register-card,
+/* Nueva clase para centrar el contenido debajo del navbar */
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    justify-content: center; 
+    /* Ajusta este valor si tu navbar es más alto/bajo */
+    min-height: calc(100vh - 65px); 
+    width: 100%;
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.register-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 550px;
+    background: rgba(255, 255, 255, 0.9); /* Un poco de transparencia */
+    backdrop-filter: blur(10px); /* Efecto esmerilado */
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 .login-card {
     position: relative;
     z-index: 2;
