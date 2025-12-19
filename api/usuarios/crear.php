@@ -4,18 +4,19 @@ require_once("../../config/db.php");
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Cambiado: Validamos 'rol_id' en lugar de 'rol'
 if (!$data || !isset($data['nombre'], $data['correo'], $data['rol_id'], $data['contrasena'])) {
     echo json_encode(["success" => false, "error" => "Faltan datos obligatorios"]);
     exit;
 }
 
+// 1. Definir todas las variables correctamente
 $nombre = $conn->real_escape_string($data['nombre']);
 $correo = $conn->real_escape_string($data['correo']);
-$rol_id = (int)$data['rol_id']; // Recibimos el ID directamente del select
+$telefono = isset($data['telefono']) ? $conn->real_escape_string($data['telefono']) : ''; // Definida
+$rol_id = (int) $data['rol_id'];
 $contrasena = $data['contrasena'];
 
-// Verificar duplicado
+// 2. Verificar duplicado
 $check = $conn->prepare("SELECT id FROM usuarios WHERE correo = ?");
 $check->bind_param("s", $correo);
 $check->execute();
@@ -24,21 +25,22 @@ if ($check->get_result()->num_rows > 0) {
     exit;
 }
 
-// Insertar
-$stmt = $conn->prepare("INSERT INTO usuarios (nombre, correo, contrasena, rol_id) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("sssi", $nombre, $correo, $contrasena, $rol_id);
+// 3. Insertar (Corregido: 5 columnas y 5 signos de interrogación)
+$stmt = $conn->prepare("INSERT INTO usuarios (nombre, correo, telefono, contrasena, rol_id) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("ssssi", $nombre, $correo, $telefono, $contrasena, $rol_id);
 
 if ($stmt->execute()) {
     $usuario_id = $stmt->insert_id;
 
-    // Lógica para agentes (Rol ID 3 es Agente según tu SQL)
+    // 4. Lógica para agentes (Corregida la variable $usuario_id)
     if ($rol_id === 3) {
-        $stmtAgente = $conn->prepare("INSERT INTO agentes (usuario_id) VALUES (?)");
-        $stmtAgente->bind_param("i", $usuario_id);
-        $stmtAgente->execute();
+        $stmtAg = $conn->prepare("INSERT INTO agentes (usuario_id) VALUES (?)");
+        $stmtAg->bind_param("i", $usuario_id);
+        $stmtAg->execute();
     }
-    // IMPORTANTE: Tu JS busca 'success', asegúrate de enviarlo
-    echo json_encode(["success" => true, "message" => "Usuario creado"]);
+    
+    echo json_encode(["success" => true, "message" => "Usuario creado exitosamente"]);
 } else {
-    echo json_encode(["success" => false, "error" => $conn->error]);
+    // Si falla el SQL, devuelve el error como JSON
+    echo json_encode(["success" => false, "error" => "Error de base de datos: " . $conn->error]);
 }
