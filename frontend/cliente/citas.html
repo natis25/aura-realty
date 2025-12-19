@@ -115,12 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const API_LISTAR = "http://localhost/TALLER/aura-realty/api/propiedades/listar.php";
     const API_SOLICITUD = "http://localhost/TALLER/aura-realty/api/solicitudes/crear.php";
 
-    // Simulando usuario logueado
-    const usuario_id = 4; 
+    const usuario_id = 4; // Simulando usuario logueado
 
-    // ==========================
-    // Cargar propiedades
-    // ==========================
     async function cargarPropiedades(filtro = "") {
         tablaBody.innerHTML = "<tr><td colspan='11' class='text-center'>Cargando...</td></tr>";
         try {
@@ -174,9 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tablaBody.appendChild(tr);
             });
 
-            // ==========================
-            // Agendar cita
-            // ==========================
+            // Botón Agendar
             document.querySelectorAll(".btnAgendar").forEach(btn => {
                 btn.addEventListener("click", () => {
                     document.getElementById("propiedad_id").value = btn.dataset.id;
@@ -185,9 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
-            // ==========================
-            // Ver más detalles
-            // ==========================
+            // Botón Ver Más
             document.querySelectorAll(".btnVer").forEach(btn => {
                 btn.addEventListener("click", () => {
                     document.getElementById("verMasImagen").src = btn.dataset.imagen ? "../../uploads/propiedades/"+btn.dataset.imagen : "";
@@ -210,9 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ==========================
     // Enviar solicitud
-    // ==========================
     formCita.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -232,16 +222,19 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await res.json();
             alert(data.message);
-            if(data.success) formCita.reset();
-            modalCita.hide();
+
+            if(data.success) {
+                formCita.reset();
+                modalCita.hide();
+                
+                // 🔔 Notificar a otras pestañas/páginas que hay nueva solicitud
+                localStorage.setItem("nueva_solicitud", Date.now());
+            }
         } catch (error) {
             console.error(error);
         }
     });
 
-    // ==========================
-    // Filtrar propiedades
-    // ==========================
     document.getElementById("filtroPropiedades").addEventListener("input", (e) => {
         cargarPropiedades(e.target.value);
     });

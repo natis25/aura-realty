@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Perfil</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<style>
+body { min-height: 100vh; display: flex; margin: 0; }
+#sidebar { width: 220px; background: #343a40; color: #fff; min-height: 100vh; }
+#sidebar a { color: #fff; text-decoration: none; padding: 10px; display: block; border-radius: 5px; }
+#sidebar a.active, #sidebar a:hover { background: #495057; }
+#main { flex: 1; padding: 20px; background: #f8f9fa; }
+</style>
+</head>
+<body>
+
+<div id="sidebar" class="d-flex flex-column p-3">
+  <h4>Cliente Dashboard</h4>
+  <a href="index.html">Dashboard</a>
+  <a href="citas.html">Ver Propiedades</a>
+  <a href="mis_citas.html">Mis Citas</a>
+  <a href="solicitudes.html">Mis Solicitudes</a>
+  <a href="perfil.html" class="active">Mi Perfil</a>
+</div>
+
+<div id="main">
+  <h3>Mi Perfil</h3>
+
+  <div class="card p-4 mt-3">
+    <form id="perfilForm">
+      <div class="mb-3">
+        <label>Nombre</label>
+        <input type="text" id="nombre" class="form-control" required>
+      </div>
+
+      <div class="mb-3">
+        <label>Correo</label>
+        <input type="email" id="correo" class="form-control" disabled>
+      </div>
+
+      <div class="mb-3">
+        <label>Teléfono</label>
+        <input type="text" id="telefono" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label>Dirección</label>
+        <input type="text" id="direccion" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label>Ciudad</label>
+        <input type="text" id="ciudad" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label>Documento de Identidad</label>
+        <input type="text" id="documento_identidad" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label>Fecha de Nacimiento</label>
+        <input type="date" id="fecha_nacimiento" class="form-control">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+    </form>
+
+    <div id="msgPerfil" class="alert mt-3" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="/TALLER/aura-realty/frontend/js/session.js"></script>
+<script src="/TALLER/aura-realty/frontend/js/auth.js"></script>
+<script src="js/perfil.js"></script>
+
+</body>
+</html>

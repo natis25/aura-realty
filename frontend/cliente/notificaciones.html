@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notificaciones - Cliente</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+body { min-height: 100vh; display: flex; }
+#sidebar { width: 220px; background: #343a40; color: #fff; }
+#sidebar a { color: #fff; text-decoration: none; padding: 10px; display: block; border-radius: 5px; }
+#sidebar a.active, #sidebar a:hover { background: #495057; }
+#main { flex: 1; padding: 20px; }
+.logout-btn { margin-top: auto; }
+.card { margin-bottom: 10px; }
+.leida { background-color: #f8f9fa; }
+</style>
+</head>
+<body>
+
+<script src="/TALLER/aura-realty/frontend/js/session.js"></script>
+<script src="/TALLER/aura-realty/frontend/js/auth.js"></script>
+
+<div id="sidebar" class="d-flex flex-column p-3">
+  <h4 class="mb-4">Cliente Dashboard</h4>
+  <ul class="nav flex-column mb-4">
+    <li><a href="index.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+    <li><a href="citas.html" class="nav-link"><i class="fas fa-home"></i> Ver Propiedades</a></li>
+    <li><a href="mis_citas.html" class="nav-link"><i class="fas fa-calendar-check"></i> Mis Citas</a></li>
+    <li><a href="solicitudes.html" class="nav-link"><i class="fas fa-envelope"></i> Mis Solicitudes</a></li>
+    <li><a href="notificaciones.html" class="nav-link active"><i class="fas fa-bell"></i> Notificaciones</a></li>
+    <li><a href="perfil.html" class="nav-link"><i class="fas fa-user"></i> Mi Perfil</a></li>
+  </ul>
+  <button id="logoutBtn" class="btn btn-danger logout-btn">
+      <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+  </button>
+</div>
+
+<div id="main">
+  <h3>Notificaciones</h3>
+  <div id="notificacionesContainer" class="mt-4">
+    <!-- JS llenará notificaciones aquí -->
+  </div>
+</div>
+
+<script>
+checkAuth("cliente");
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("user");
+    window.location.href = "/TALLER/aura-realty/frontend/login.html";
+});
+
+// Cargar notificaciones del cliente
+function loadNotificaciones() {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if(!user) return;
+
+    const allNotis = JSON.parse(localStorage.getItem("notificaciones")) || [];
+    const userNotis = allNotis.filter(n => n.usuario_id === user.id);
+    const container = document.getElementById("notificacionesContainer");
+    container.innerHTML = "";
+
+    if(userNotis.length === 0) {
+        container.innerHTML = "<p>No tienes notificaciones.</p>";
+        return;
+    }
+
+    userNotis.forEach(n => {
+        const card = document.createElement("div");
+        card.className = `card ${n.leida ? 'leida' : ''}`;
+        card.innerHTML = `
+            <div class="card-body">
+                <h5 class="card-title">${n.titulo || "Notificación"}</h5>
+                <p class="card-text">${n.mensaje}</p>
+                <small class="text-muted">${n.fecha_creacion}</small>
+                ${!n.leida ? `<button class="btn btn-sm btn-primary mt-2" onclick="marcarLeida(${n.id})">Marcar como leída</button>` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Marcar notificación como leída
+function marcarLeida(id) {
+    let allNotis = JSON.parse(localStorage.getItem("notificaciones")) || [];
+    const index = allNotis.findIndex(n => n.id === id);
+    if(index !== -1) {
+        allNotis[index].leida = true;
+        localStorage.setItem("notificaciones", JSON.stringify(allNotis));
+        loadNotificaciones();
+    }
+}
+
+loadNotificaciones();
+</script>
+
+</body>
+</html>

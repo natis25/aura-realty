@@ -1,6 +1,4 @@
 <?php
-// C:\xampp\htdocs\TALLER\aura-realty\api\solicitudes\crear.php
-
 // Mostrar errores para debug
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -65,10 +63,10 @@ try {
         exit;
     }
 
-    // Insertar nueva solicitud
+    // Insertar nueva solicitud con estado pendiente por defecto
     $insertSql = "INSERT INTO solicitudes_cita 
-        (usuario_id, propiedad_id, fecha_solicitada, hora_solicitada, mensaje, creada_por) 
-        VALUES (?, ?, ?, ?, ?, 'cliente')";
+        (usuario_id, propiedad_id, fecha_solicitada, hora_solicitada, mensaje, estado, creada_por) 
+        VALUES (?, ?, ?, ?, ?, 'pendiente', 'cliente')";
     $stmtInsert = $conn->prepare($insertSql);
     $stmtInsert->bind_param("iisss", $usuario_id, $propiedad_id, $fecha_solicitada, $hora_solicitada, $mensaje);
     $stmtInsert->execute();

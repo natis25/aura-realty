@@ -1,17 +1,27 @@
 <?php
-//require_once '../config/jwt.php';
 require_once __DIR__ . '/../config/jwt.php';
-//no hay archivo require_once '../vendor/autoload.php';
-
 use \Firebase\JWT\JWT;
 use \Firebase\JWT\Key;
+
+// Compatibilidad si getallheaders() no existe
+if (!function_exists('getallheaders')) {
+    function getallheaders() {
+        $headers = [];
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+}
 
 function validate_jwt($roles_permitidos = null) {
     $headers = getallheaders();
 
     if (!isset($headers['Authorization'])) {
         http_response_code(401);
-        echo json_encode(['error' => 'Token no proporcionado']);
+        echo json_encode(['error' => 'Token no proporcionado', 'headers_recibidos' => $headers]);
         exit;
     }
 
@@ -20,7 +30,6 @@ function validate_jwt($roles_permitidos = null) {
     try {
         $decoded = JWT::decode($token, new Key(JWT_SECRET, 'HS256'));
 
-        // Si se especifican roles, validar
         if ($roles_permitidos !== null) {
             if (is_array($roles_permitidos)) {
                 if (!in_array($decoded->rol, $roles_permitidos)) {
@@ -29,7 +38,6 @@ function validate_jwt($roles_permitidos = null) {
                     exit;
                 }
             } else {
-                // Solo un rol
                 if ($decoded->rol !== $roles_permitidos) {
                     http_response_code(403);
                     echo json_encode(['error' => 'Rol no autorizado']);
@@ -38,12 +46,11 @@ function validate_jwt($roles_permitidos = null) {
             }
         }
 
-        return $decoded; // Información del usuario dentro del token
+        return $decoded;
 
     } catch (Exception $e) {
         http_response_code(401);
-        echo json_encode(['error' => 'Token inválido o expirado']);
+        echo json_encode(['error' => 'Token inválido o expirado', 'mensaje' => $e->getMessage()]);
         exit;
     }
 }
-?>

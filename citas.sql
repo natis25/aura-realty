@@ -208,3 +208,26 @@ UPDATE usuarios SET correo = 'carlos@inmo.com' WHERE id = 2;
 UPDATE usuarios SET correo = 'maria@inmo.com' WHERE id = 3;
 UPDATE usuarios SET correo = 'juan@gmail.com' WHERE id = 4;
 UPDATE usuarios SET correo = 'ana@gmail.com' WHERE id = 5;
+
+--ampliar la tabla de users
+ALTER TABLE usuarios
+ADD estado ENUM('activo','pendiente','inactivo') DEFAULT 'activo';
+
+--columnas de reset de contraseña
+ALTER TABLE usuarios
+ADD reset_token VARCHAR(255) NULL,
+ADD reset_expires_at DATETIME NULL,
+ADD requiere_reset_password TINYINT(1) DEFAULT 0;
+--prueba para hash
+UPDATE usuarios
+SET contrasena = '$2y$10$8k8zQ9J3kYyFvQz7Jtq4VOPkF7B3u3bN9c0ZK7Xz7uK6l1s9q'
+WHERE contrasena IS NOT NULL;
+
+--mas columnas para usuer
+ALTER TABLE usuarios
+ADD direccion VARCHAR(255) NULL,
+ADD ciudad VARCHAR(100) NULL,
+ADD documento_identidad VARCHAR(50) NULL,
+ADD fecha_nacimiento DATE NULL;
+
+
