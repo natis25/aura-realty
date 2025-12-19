@@ -4,8 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof checkAuth === "function") checkAuth("admin");
     fetchUsuarios();
 
+    //Evento de buscador
     document.getElementById("searchInput").addEventListener("input", (e) => {
         fetchUsuarios(e.target.value);
+    });
+
+    //Evento para filtro de rol
+    document.getElementById("roleFilter").addEventListener("change", () => {
+        ejecutarFiltros();
     });
 
     document.getElementById("userForm").addEventListener("submit", guardarUsuario);
@@ -18,10 +24,19 @@ function toggleModal(show = true) {
     show ? instance.show() : instance.hide();
 }
 
-async function fetchUsuarios(search = "") {
+function ejecutarFiltros() {
+    const texto = document.getElementById("searchInput").value;
+    const rol = document.getElementById("roleFilter").value;
+    fetchUsuarios(texto, rol);
+}
+
+async function fetchUsuarios(search = "", rol = "") {
     try {
-        const res = await fetch(`${API_URL}listar.php?search=${encodeURIComponent(search)}`);
+        // Añadimos el parámetro 'rol_id' a la URL
+        const url = `${API_URL}listar.php?search=${encodeURIComponent(search)}&rol_id=${rol}`;
+        const res = await fetch(url);
         const data = await res.json();
+        
         const tbody = document.getElementById("tablaUsuarios");
         tbody.innerHTML = "";
 
@@ -44,7 +59,7 @@ async function fetchUsuarios(search = "") {
                     </td>
                 </tr>`;
         });
-    } catch (e) { console.error("Error al cargar tabla", e); }
+    } catch (e) { console.error("Error al filtrar usuarios", e); }
 }
 
 function abrirModalCrear() {

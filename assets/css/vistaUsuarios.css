@@ -1,0 +1,78 @@
+:root {
+    --gold: #D1B16D;
+    --navy: #001f3f;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #fcfcfc;
+}
+
+.dashboard-title {
+    color: var(--gold);
+    font-weight: 700;
+    text-align: center;
+    margin: 30px 0;
+    font-size: 2.2rem;
+}
+
+/* Contenedor de Tabla con Borde Dorado */
+.table-wrapper {
+    background: white;
+    border: 1.5px solid var(--gold);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    border-bottom: 2px solid var(--gold);
+    color: var(--navy);
+    text-align: center;
+    font-weight: 600;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    text-align: center;
+    color: #555;
+    padding: 12px;
+}
+
+/* Botones de Acción */
+.btn-action {
+    background: none;
+    border: none;
+    font-size: 1.3rem;
+    transition: 0.2s;
+}
+
+.btn-edit {
+    color: #3F9FFF;
+}
+
+.btn-delete {
+    color: #dc3545;
+}
+
+.btn-action:hover {
+    transform: scale(1.15);
+}
+
+.search-container {
+    max-width: 400px;
+    position: relative;
+}
+
+.search-box {
+    border: 1.5px solid var(--gold);
+    border-radius: 20px;
+    padding-left: 40px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    color: var(--gold);
+}
