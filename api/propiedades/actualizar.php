@@ -1,53 +1,48 @@
 <?php
-require_once '../../config/db.php';
-require_once '../../middleware/auth.php';
+// Desactivar salida de errores HTML para no romper el JSON
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
 
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-// Validar JWT y rol (solo admin)
-$admin = validate_jwt('admin');
+try {
+    // 1. Verificar archivos requeridos
+    if (!file_exists('../../config/db.php')) throw new Exception("Falta config/db.php");
+    if (!file_exists('../../middleware/auth.php')) throw new Exception("Falta middleware/auth.php");
 
-// Leer datos del POST
-$data = json_decode(file_get_contents("php://input"));
+    require_once '../../config/db.php';
+    require_once '../../middleware/auth.php';
 
-if(!isset($data->id)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Falta el ID de la propiedad']);
-    exit;
-}
+    // 2. Leer JSON de entrada
+    $input = file_get_contents("php://input");
+    $data = json_decode($input, true);
 
-// Construir SQL dinámico según campos enviados
-$fields = [];
-$params = [];
-$types = '';
+    if (!$data) throw new Exception("No se recibieron datos JSON válidos");
 
-$allowed_fields = ['titulo','direccion','ciudad','tipo','precio','area','habitaciones','banos','descripcion','imagen_principal','disponible'];
+    $id = $data['id'] ?? null;
+    $disponible = isset($data['disponible']) ? $data['disponible'] : null;
 
-foreach($allowed_fields as $field) {
-    if(isset($data->$field)) {
-        $fields[] = "$field = ?";
-        $params[] = $data->$field;
-        $types .= ($field == 'habitaciones' || $field == 'banos') ? 'i' : (($field == 'precio' || $field == 'area') ? 'd' : 's');
+    if (!$id || $disponible === null) {
+        throw new Exception("Faltan datos (ID o Disponibilidad)");
     }
-}
 
-if(empty($fields)) {
-    http_response_code(400);
-    echo json_encode(['error' => 'No se proporcionaron campos a actualizar']);
-    exit;
-}
+    // 3. Actualizar en BD
+    $stmt = $conn->prepare("UPDATE propiedades SET disponible = ? WHERE id = ?");
+    $stmt->bind_param("ii", $disponible, $id);
 
-$params[] = $data->id;
-$types .= 'i';
+    if ($stmt->execute()) {
+        echo json_encode(["success" => true, "message" => "Estado actualizado"]);
+    } else {
+        throw new Exception("Error SQL: " . $stmt->error);
+    }
+    
+    $stmt->close();
+    $conn->close();
 
-$sql = "UPDATE propiedades SET " . implode(', ', $fields) . " WHERE id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-
-if($stmt->execute()) {
-    echo json_encode(['status' => 'success', 'mensaje' => 'Propiedad actualizada correctamente']);
-} else {
+} catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Error al actualizar la propiedad']);
+    echo json_encode(["success" => false, "message" => $e->getMessage()]);
 }
 ?>
