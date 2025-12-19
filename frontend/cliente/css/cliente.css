@@ -1,0 +1,263 @@
+/* frontend/cliente/css/cliente.css */
+
+:root {
+    --color-gold: #d4a865;
+    --color-dark-blue: #00204a;
+    --color-white: #ffffff;
+    --color-bg-light: #f8f9fa;
+    --color-btn-delete: #d92525;
+    --color-btn-edit: #2d9bf0;
+}
+
+body {
+    background-color: var(--color-bg-light);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+h2, h3 {
+    color: var(--color-gold) !important;
+    font-weight: 700;
+    text-align: center;
+    margin: 30px 0;
+}
+
+/* =========================================
+   BOTONES SUPERIORES (Index)
+   ========================================= */
+.btn-nav-custom {
+    background-color: var(--color-dark-blue);
+    color: var(--color-gold);
+    border: 1px solid var(--color-gold);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.btn-nav-custom:hover {
+    background-color: var(--color-gold);
+    color: var(--color-dark-blue);
+}
+
+/* =========================================
+   TARJETAS OSCURAS (Propiedades - Index)
+   ========================================= */
+.propiedad-card {
+    background-color: var(--color-dark-blue);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.card-img-wrapper {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+.card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.badge-tipo {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.card-content {
+    padding: 20px;
+    text-align: center;
+    flex-grow: 1;
+}
+.card-title {
+    color: var(--color-gold);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.card-price {
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+.card-location {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 15px;
+}
+
+/* Botón "Agendar Visita" (Blanco con letras azules) */
+.card-actions {
+    padding: 15px;
+    background: rgba(0,0,0,0.2);
+}
+.btn-agendar {
+    width: 100%;
+    background-color: white;
+    color: var(--color-dark-blue);
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+.btn-agendar:hover {
+    background-color: var(--color-gold);
+    color: white;
+}
+
+/* =========================================
+   TARJETAS CLARAS (Solicitudes y Citas)
+   ========================================= */
+.cita-card {
+    background-color: white;
+    border: 2px solid #e6dccf; /* Beige suave */
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.cita-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.cita-label {
+    font-size: 0.9rem;
+    color: var(--color-dark-blue);
+    font-weight: 600;
+}
+
+.cita-title {
+    color: var(--color-gold);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.cita-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: var(--color-dark-blue);
+    font-size: 0.95rem;
+}
+.cita-info-row i {
+    color: var(--color-dark-blue);
+    width: 20px;
+}
+
+.cita-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 10px;
+    padding-top: 15px;
+}
+
+/* Botones estilo imagen */
+.btn-cita {
+    flex: 1;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+.btn-cita-edit { background-color: var(--color-btn-edit); }
+.btn-cita-cancel { background-color: var(--color-btn-delete); }
+
+/* Badges de estado */
+.badge-cita {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-pendiente { background-color: #b3e5fc; color: #0277bd; } /* Celeste */
+.badge-aceptada { background-color: #c8e6c9; color: #2e7d32; }  /* Verde */
+.badge-cancelada { background-color: #ffcdd2; color: #c62828; } /* Rojo */
+.badge-atendida { background-color: #dcedc8; color: #558b2f; }  /* Lima */
+
+/* =========================================
+   MODAL AGENDAR (Estilo Imagen Calendario)
+   ========================================= */
+.modal-content-agendar {
+    border-radius: 20px;
+    border: none;
+    padding: 20px;
+}
+
+.modal-header { border-bottom: none; }
+.modal-title-custom {
+    color: var(--color-dark-blue);
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.input-group-custom {
+    background-color: #f3e5f5; /* Lila muy suave */
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.custom-label {
+    color: var(--color-dark-blue);
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    display: block;
+    text-align: left;
+}
+
+/* Estilizar inputs para que parezcan la imagen */
+.form-control-lg-custom {
+    border: 2px solid var(--color-gold);
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 1.1rem;
+    color: var(--color-dark-blue);
+    font-weight: 600;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-agendar-modal {
+    background-color: var(--color-dark-blue);
+    color: var(--color-gold);
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: none;
+    transition: opacity 0.3s;
+}
+.btn-agendar-modal:hover { opacity: 0.9; }

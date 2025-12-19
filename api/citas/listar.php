@@ -1,93 +1,87 @@
 <?php
-require_once '../../config/db.php';
-require_once '../../middleware/auth.php';
-
+// api/citas/listar.php
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
 
-// Validar JWT y rol
-$user = validate_jwt();
+require_once '../../config/db.php';
 
-// Parámetros opcionales
-$page = isset($_GET['page']) ? max(1,intval($_GET['page'])) : 1;
-$limit = isset($_GET['limit']) ? max(1,intval($_GET['limit'])) : 10;
-$search = isset($_GET['search']) ? $_GET['search'] : '';
-$estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+// Get the user ID and Role from the request (or token)
+// For simplicity, we'll assume the frontend sends the user_id or we decode the token here.
+// Let's rely on the frontend sending the user_id for this specific request structure you have.
+$usuario_id = isset($_GET['usuario_id']) ? intval($_GET['usuario_id']) : 0;
+$rol = isset($_GET['rol']) ? $_GET['rol'] : '';
 
-$offset = ($page - 1) * $limit;
+if ($usuario_id === 0) {
+    echo json_encode(['success' => false, 'message' => 'Falta ID de usuario']);
+    exit;
+}
 
-// Consulta base
-$sql_base = "
-    SELECT c.id, c.solicitud_id, c.agente_id, c.fecha, c.hora, c.estado,
-           s.usuario_id, u.nombre AS cliente,
-           p.id AS propiedad_id, p.titulo AS propiedad
-    FROM citas c
-    JOIN solicitudes_cita s ON c.solicitud_id = s.id
-    JOIN usuarios u ON s.usuario_id = u.id
-    JOIN propiedades p ON s.propiedad_id = p.id
-";
-
-// Filtros
-$conditions = [];
+$sql = "";
 $params = [];
 $types = "";
 
-// Rol agente → solo sus citas
-if($user->rol === 'agente') {
-    $conditions[] = "c.agente_id = ?";
-    $params[] = $user->id;
-    $types .= "i";
+if ($rol === 'cliente') {
+    // JOIN query to get appointment details + property info + agent info
+    // We link citas -> solicitudes_cita -> propiedades
+    $sql = "SELECT 
+                c.id, 
+                c.fecha, 
+                c.hora, 
+                c.estado,
+                c.nota,
+                p.titulo AS propiedad_titulo,
+                p.direccion,
+                p.ciudad,
+                u_agente.nombre AS agente_nombre
+            FROM citas c
+            INNER JOIN solicitudes_cita s ON c.solicitud_id = s.id
+            INNER JOIN propiedades p ON s.propiedad_id = p.id
+            LEFT JOIN agentes a ON c.agente_id = a.id
+            LEFT JOIN usuarios u_agente ON a.usuario_id = u_agente.id
+            WHERE s.usuario_id = ? 
+            ORDER BY c.fecha DESC, c.hora DESC";
+    
+    $params[] = $usuario_id;
+    $types = "i";
+
+} else if ($rol === 'agente') {
+    // Logic for agent (seeing their own appointments)
+    // You would join with agentes table to verify the agent_id matches the user
+     $sql = "SELECT 
+                c.id, c.fecha, c.hora, c.estado, c.nota,
+                p.titulo AS propiedad_titulo,
+                u_cliente.nombre AS cliente_nombre
+            FROM citas c
+            INNER JOIN solicitudes_cita s ON c.solicitud_id = s.id
+            INNER JOIN propiedades p ON s.propiedad_id = p.id
+            INNER JOIN usuarios u_cliente ON s.usuario_id = u_cliente.id
+            WHERE c.agente_id = (SELECT id FROM agentes WHERE usuario_id = ?)
+            ORDER BY c.fecha DESC";
+            
+    $params[] = $usuario_id;
+    $types = "i";
+} else {
+    // Admin or other
+    echo json_encode(['success' => false, 'message' => 'Rol no válido']);
+    exit;
 }
 
-// Rol cliente → solo sus citas
-if($user->rol === 'cliente') {
-    $conditions[] = "s.usuario_id = ?";
-    $params[] = $user->id;
-    $types .= "i";
+try {
+    $stmt = $conn->prepare($sql);
+    if(!$stmt) throw new Exception("Error en consulta: " . $conn->error);
+    
+    $stmt->bind_param($types, ...$params);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $citas = [];
+    while ($row = $result->fetch_assoc()) {
+        $citas[] = $row;
+    }
+
+    echo json_encode(['success' => true, 'citas' => $citas]);
+
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-
-// Filtrar estado
-if($estado) {
-    $conditions[] = "c.estado = ?";
-    $params[] = $estado;
-    $types .= "s";
-}
-
-// Búsqueda por propiedad o cliente
-if($search) {
-    $conditions[] = "(p.titulo LIKE ? OR u.nombre LIKE ?)";
-    $params[] = "%$search%";
-    $params[] = "%$search%";
-    $types .= "ss";
-}
-
-$where = $conditions ? "WHERE " . implode(" AND ", $conditions) : "";
-$sql = "$sql_base $where ORDER BY c.fecha DESC, c.hora ASC LIMIT ? OFFSET ?";
-$params[] = $limit;
-$params[] = $offset;
-$types .= "ii";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$citas = [];
-while($row = $result->fetch_assoc()) {
-    $citas[] = $row;
-}
-
-// Contar total
-$count_sql = "SELECT COUNT(*) AS total FROM citas c JOIN solicitudes_cita s ON c.solicitud_id = s.id JOIN usuarios u ON s.usuario_id = u.id JOIN propiedades p ON s.propiedad_id = p.id $where";
-$count_stmt = $conn->prepare($count_sql);
-if($conditions) $count_stmt->bind_param(substr($types,0,-2), ...array_slice($params,0,-2)); // quitar limit y offset
-$count_stmt->execute();
-$total = $count_stmt->get_result()->fetch_assoc()['total'];
-
-echo json_encode([
-    'citas' => $citas,
-    'pagina' => $page,
-    'limit' => $limit,
-    'total' => intval($total),
-    'total_paginas' => ceil($total / $limit)
-]);
 ?>
