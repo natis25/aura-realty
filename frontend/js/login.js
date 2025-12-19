@@ -8,10 +8,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = document.getElementById("password").value.trim();
 
         try {
-            const response = await fetch("http://localhost/TALLER/aura-realty/api/auth/login.php", {
+            const response = await fetch("../api/auth/login.php", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
+                headers: { 
+                    "Content-Type": "application/json" 
                 },
                 body: JSON.stringify({ email, password })
             });
@@ -30,13 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             switch (data.user.rol) {
                 case "admin":
-                    window.location.href = "/TALLER/aura-realty/frontend/admin/index.html";
+                    window.location.href = "admin/index.html"; // No lleva "/" al inicio
                     break;
                 case "cliente":
-                    window.location.href = "/TALLER/aura-realty/frontend/cliente/index.html";
+                    window.location.href = "cliente/index.html";
                     break;
                 case "agente":
-                    window.location.href = "/TALLER/aura-realty/frontend/agente/index.html";
+                    window.location.href = "agente/index.html";
                     break;
                 default:
                     showError("Rol desconocido");
