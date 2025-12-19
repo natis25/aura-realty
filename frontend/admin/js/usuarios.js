@@ -1,161 +1,111 @@
-const apiBase = "/TALLER/aura-realty/api/usuarios/";
+const API_URL = "/aura-realty/aura-realty/api/usuarios/";
 
-// Variables del modal
-const usuarioModal = new bootstrap.Modal(document.getElementById('usuarioModal'));
-const modalTitle = document.getElementById('modalTitle');
-const usuarioForm = document.getElementById('usuarioForm');
-const usuarioIdInput = document.getElementById('usuarioId');
-const nombreInput = document.getElementById('nombreUsuario');
-const correoInput = document.getElementById('correoUsuario');
-const rolInput = document.getElementById('rolUsuario');
-const passwordDiv = document.getElementById('passwordDiv');
-const passwordInput = document.getElementById('passwordUsuario');
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof checkAuth === "function") checkAuth("admin");
+    fetchUsuarios();
 
-// ================== Listar Usuarios ==================
-async function fetchUsuarios(page = 1, limit = 10, search = '', sort_by = 'id', sort_order = 'ASC') {
-    try {
-        const params = new URLSearchParams({ page, limit, search, sort_by, sort_order });
-
-        // 🔥 CORREGIDO
-        const res = await fetch(`${apiBase}listar.php?${params}`);
-
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message || 'Error al obtener usuarios');
-        return data;
-
-    } catch (err) {
-        console.error(err);
-        alert(err.message);
-        return { usuarios: [], pagina: 1, total_paginas: 1 };
-    }
-}
-
-async function loadAndRenderUsuarios(page = 1) {
-    const search = document.querySelector('#searchInput')?.value || '';
-    const data = await fetchUsuarios(page, 10, search);
-
-    const tbody = document.querySelector('#tablaUsuarios');
-    tbody.innerHTML = '';
-
-    data.usuarios.forEach(u => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${u.id}</td>
-            <td>${u.nombre}</td>
-            <td>${u.correo}</td>
-            <td>${u.rol}</td>
-            <td>${u.estado}</td>
-            <td>
-                <button class="btn btn-sm btn-warning me-1" onclick="abrirModalEditar(${u.id}, '${u.nombre}', '${u.correo}', '${u.rol}')">Editar</button>
-                <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${u.id})">Eliminar</button>
-            </td>
-        `;
-        tbody.appendChild(tr);
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+        fetchUsuarios(e.target.value);
     });
 
-    renderPagination(data.pagina, data.total_paginas);
-}
-
-function renderPagination(current, total) {
-    const container = document.querySelector('#pagination');
-    container.innerHTML = '';
-
-    for (let i = 1; i <= total; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = 'btn btn-outline-primary btn-sm me-1';
-        btn.disabled = i === current;
-        btn.onclick = () => loadAndRenderUsuarios(i);
-        container.appendChild(btn);
-    }
-}
-
-// ================== Crear / Editar ==================
-function abrirModalCrear() {
-    modalTitle.textContent = 'Crear Usuario';
-    usuarioIdInput.value = '';
-    nombreInput.value = '';
-    correoInput.value = '';
-    rolInput.value = 'cliente';
-    passwordDiv.style.display = 'block';
-    passwordInput.value = '123456';
-    usuarioModal.show();
-}
-
-function abrirModalEditar(id, nombre, correo, rol) {
-    modalTitle.textContent = 'Editar Usuario';
-    usuarioIdInput.value = id;
-    nombreInput.value = nombre;
-    correoInput.value = correo;
-    rolInput.value = rol;
-    passwordDiv.style.display = 'none';
-    passwordInput.value = '';
-    usuarioModal.show();
-}
-
-usuarioForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const id = usuarioIdInput.value;
-    const nombre = nombreInput.value.trim();
-    const correo = correoInput.value.trim();
-    const rol = rolInput.value;
-
-    if (!nombre || !correo || !rol) return alert('Todos los campos son obligatorios.');
-
-    try {
-        // 🔥 CORREGIDO
-        let url = id ? `${apiBase}actualizar.php` : `${apiBase}crear.php`;
-
-        let body = id 
-            ? { id, nombre, correo, rol }
-            : { nombre, correo, rol, contrasena: passwordInput.value || '123456' };
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
-
-        alert(data.message);
-        usuarioModal.hide();
-        loadAndRenderUsuarios();
-
-    } catch (err) {
-        console.error(err);
-        alert(err.message);
-    }
+    document.getElementById("userForm").addEventListener("submit", guardarUsuario);
 });
 
-// ================== Eliminar Usuario ==================
-async function eliminarUsuario(id) {
-    if (!confirm('¿Seguro que desea eliminar este usuario?')) return;
+// Helper para el modal (evita error de backdrop)
+function toggleModal(show = true) {
+    const el = document.getElementById('userModal');
+    const instance = bootstrap.Modal.getOrCreateInstance(el);
+    show ? instance.show() : instance.hide();
+}
 
+async function fetchUsuarios(search = "") {
     try {
-        // 🔥 CORREGIDO
-        const res = await fetch(`${apiBase}eliminar.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
-
+        const res = await fetch(`${API_URL}listar.php?search=${encodeURIComponent(search)}`);
         const data = await res.json();
-        if (!data.success) throw new Error(data.message);
+        const tbody = document.getElementById("tablaUsuarios");
+        tbody.innerHTML = "";
 
-        alert(data.message);
-        loadAndRenderUsuarios();
+        data.forEach(u => {
+            const isAdmin = u.rol === 'admin' ? 'Si' : 'No';
+            tbody.innerHTML += `
+                <tr>
+                    <td>${u.nombre}</td>
+                    <td>${u.telefono || '-'}</td>
+                    <td>${u.correo}</td>
+                    <td><span class="badge border text-dark bg-light">${u.rol.toUpperCase()}</span></td>
+                    <td>${isAdmin}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="abrirModalEditar(${u.id})">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                        <button class="btn-action btn-delete" onclick="borrarLogico(${u.id})">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>`;
+        });
+    } catch (e) { console.error("Error al cargar tabla", e); }
+}
 
-    } catch (err) {
-        console.error(err);
-        alert(err.message);
+function abrirModalCrear() {
+    document.getElementById("userForm").reset();
+    document.getElementById("userId").value = "";
+    document.getElementById("modalTitle").innerText = "Añadir Trabajador";
+    document.getElementById("passContainer").style.display = "block";
+    toggleModal(true);
+}
+
+async function abrirModalEditar(id) {
+    try {
+        const res = await fetch(`${API_URL}obtener.php?id=${id}`);
+        const u = await res.json();
+
+        document.getElementById("userId").value = u.id;
+        document.getElementById("userName").value = u.nombre;
+        document.getElementById("userEmail").value = u.correo;
+        document.getElementById("userPhone").value = u.telefono;
+        document.getElementById("userRole").value = u.rol_id;
+        document.getElementById("modalTitle").innerText = "Editar Trabajador";
+        document.getElementById("passContainer").style.display = "none";
+        
+        toggleModal(true);
+    } catch (e) { alert("Error al obtener datos"); }
+}
+
+async function guardarUsuario(e) {
+    e.preventDefault();
+    const id = document.getElementById("userId").value;
+    const action = id ? "actualizar.php" : "crear.php";
+
+    const payload = {
+        id,
+        nombre: document.getElementById("userName").value,
+        correo: document.getElementById("userEmail").value,
+        telefono: document.getElementById("userPhone").value,
+        rol_id: document.getElementById("userRole").value,
+        contrasena: document.getElementById("userPass").value
+    };
+
+    const res = await fetch(`${API_URL}${action}`, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.success) {
+        toggleModal(false);
+        fetchUsuarios();
+    } else {
+        alert(data.error || data.message);
     }
 }
 
-// ================== Búsqueda ==================
-document.querySelector('#searchInput')?.addEventListener('input', () => loadAndRenderUsuarios(1));
-
-// ================== Inicializar ==================
-document.addEventListener('DOMContentLoaded', () => loadAndRenderUsuarios());
+async function borrarLogico(id) {
+    if (!confirm("¿Deseas dar de baja a este trabajador?")) return;
+    const res = await fetch(`${API_URL}eliminar.php`, {
+        method: "POST",
+        body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    if (data.success) fetchUsuarios();
+}

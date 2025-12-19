@@ -2,78 +2,115 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Usuarios</title>
-    <!-- Bootstrap CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Realty — Gestión de Trabajadores</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root { --gold: #D1B16D; --navy: #001f3f; }
+        body { font-family: 'Poppins', sans-serif; background-color: #fcfcfc; }
+        .dashboard-title { color: var(--gold); font-weight: 700; text-align: center; margin: 30px 0; font-size: 2.2rem; }
+        
+        /* Contenedor de Tabla con Borde Dorado */
+        .table-wrapper { 
+            background: white; 
+            border: 1.5px solid var(--gold); 
+            border-radius: 15px; 
+            padding: 25px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .table thead th { border-bottom: 2px solid var(--gold); color: var(--navy); text-align: center; font-weight: 600; }
+        .table tbody td { vertical-align: middle; text-align: center; color: #555; padding: 12px; }
+        
+        /* Botones de Acción */
+        .btn-action { background: none; border: none; font-size: 1.3rem; transition: 0.2s; }
+        .btn-edit { color: #3F9FFF; }
+        .btn-delete { color: #dc3545; }
+        .btn-action:hover { transform: scale(1.15); }
+
+        .search-container { max-width: 400px; position: relative; }
+        .search-box { border: 1.5px solid var(--gold); border-radius: 20px; padding-left: 40px; }
+        .search-icon { position: absolute; left: 15px; top: 10px; color: var(--gold); }
+    </style>
 </head>
-<body class="p-4">
+<body>
+    <div id="navbar-container"></div>
 
-<h1 class="mb-4">Gestión de Usuarios</h1>
+    <div class="container my-5">
+        <h1 class="dashboard-title">Gestión de Trabajadores</h1>
 
-<div class="d-flex mb-3">
-    <input type="text" id="searchInput" class="form-control me-2" placeholder="Buscar usuarios...">
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#usuarioModal" onclick="abrirModalCrear()">Crear Usuario</button>
-</div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="search-container flex-grow-1">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" class="form-control search-box" placeholder="Buscar trabajador...">
+            </div>
+            <button class="btn btn-dark ms-3 px-4 rounded-pill" style="background-color: var(--navy);" onclick="abrirModalCrear()">
+                <i class="fa-solid fa-user-plus me-2"></i>Añadir Usuario
+            </button>
+        </div>
 
-<table class="table table-bordered table-hover">
-    <thead class="table-light">
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Rol</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody id="tablaUsuarios">
-        <!-- Usuarios se cargan aquí vía JS -->
-    </tbody>
-</table>
-
-<div id="pagination" class="mb-4"></div>
-
-<!-- Modal Crear/Editar Usuario -->
-<div class="modal fade" id="usuarioModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">Crear Usuario</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-      </div>
-      <div class="modal-body">
-        <form id="usuarioForm">
-          <input type="hidden" id="usuarioId">
-          <div class="mb-3">
-            <label for="nombreUsuario" class="form-label">Nombre</label>
-            <input type="text" id="nombreUsuario" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="correoUsuario" class="form-label">Correo</label>
-            <input type="email" id="correoUsuario" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="rolUsuario" class="form-label">Rol</label>
-            <select id="rolUsuario" class="form-select" required>
-              <option value="admin">Admin</option>
-              <option value="cliente">Cliente</option>
-              <option value="agente">Agente</option>
-            </select>
-          </div>
-          <div class="mb-3" id="passwordDiv">
-            <label for="passwordUsuario" class="form-label">Contraseña</label>
-            <input type="text" id="passwordUsuario" class="form-control" placeholder="123456">
-          </div>
-          <button type="submit" class="btn btn-success w-100">Guardar</button>
-        </form>
-      </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Acceso Admin</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios">
+                    </tbody>
+            </table>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="js/usuarios.js"></script>
+    <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form id="userForm" class="modal-content border-0">
+                <div class="modal-header" style="background-color: var(--navy); color: white;">
+                    <h5 class="modal-title" id="modalTitle">Nuevo Trabajador</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nombre Completo</label>
+                        <input type="text" id="userName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Correo Electrónico</label>
+                        <input type="email" id="userEmail" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Teléfono</label>
+                        <input type="text" id="userPhone" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Rol en el Sistema</label>
+                        <select id="userRole" class="form-select" required>
+                            <option value="1">Administrador</option>
+                            <option value="2">Cliente</option>
+                            <option value="3">Agente</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="passContainer">
+                        <label class="form-label fw-bold">Contraseña Inicial</label>
+                        <input type="password" id="userPass" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-dark w-100 py-2" style="background-color: var(--navy);">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/aura-realty/aura-realty/frontend/js/session.js"></script>
+    <script src="/aura-realty/aura-realty/assets/js/components/navbar.js"></script>
+    <script src="js/usuarios.js"></script>
 </body>
 </html>
