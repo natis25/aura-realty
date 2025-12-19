@@ -1,6 +1,6 @@
 body {
     /* Buscamos la imagen subiendo un nivel a assets y entrando a images */
-    background: url('../images/registerBg.png') no-repeat center;
+    background: url('../images/registerBg.jpg') no-repeat center;
     background-size: cover;
     min-height: 100vh;
     display: flex;
@@ -9,16 +9,80 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-.register-card, .login-card {
+.register-card,
+.login-card {
     position: relative;
     z-index: 2;
     width: 100%;
     max-width: 550px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255);
     padding: 40px;
     border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
 }
 
-.register-card h2 { color: #c4a47c; font-weight: 700; text-align: center; }
-/* ... añade aquí el resto de tus estilos ... */
+.register-card h3 {
+    color: #D1B16D;
+    font-weight: 700;
+    text-align: center;
+}
+
+label {
+    color: #002349;
+    font-weight: 500;
+}
+
+
+.form-label {
+    font-weight: 500;
+    color: #002349;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    border-radius: 15px;
+    padding: 10px;
+    border: 1px solid #002349;
+    height: 30px;
+}
+
+.btn-register {
+    background: #001f3f;
+    color: #D1B16D;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px;
+    transition: 0.3s;
+}
+
+.btn-register:hover {
+    color: #001f3f;
+    background: #D1B16D;
+    transform: translateY(-2px);
+}
+
+.btn-employee {
+    background: transparent;
+    border: 2px solid #D1B16D;
+    color: #001f3f;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+.btn-employee:hover {
+    color: #001f3f;
+    background: #D1B16D;
+    transform: translateY(-2px);
+}
+
+.password-requirements {
+    font-size: 0.75rem;
+    color: #dc3545;
+    list-style: none;
+    padding-left: 0;
+    margin-top: 10px;
+}
+
+.password-requirements li::before {
+    content: "• ";
+}
