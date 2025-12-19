@@ -1,218 +1,163 @@
 document.addEventListener("DOMContentLoaded", () => {
-    if (!window.checkAuth("admin")) return; 
+    // 1. Validar autenticación y rol (Cierra la sesión si no es admin)
+    if (typeof window.checkAuth === "function") {
+        if (!window.checkAuth("admin")) return;
+    }
 
-    // 1. Referencias al DOM    
-    const citasContainer = document.getElementById("citasContainer");
-    const noCitasMessage = document.getElementById("noCitasMessage");
-    const formCita = document.getElementById("formCita");
-    const modalCitaEl = document.getElementById("modalCita");
-    const modalCita = new bootstrap.Modal(modalCitaEl);
+    cargarCitas();
 
-    // 2. Rutas API
+    // 2. Referencias al DOM y Configuración
+    const token = localStorage.getItem("token"); // Token necesario para evitar el error 401
     const API_BASE = "/aura-realty/aura-realty/api";
-    const API_LISTAR = `${API_BASE}/citas/listar.php`;
-    const API_CREAR = `${API_BASE}/citas/crear.php`;
-    const API_AGENTES = `${API_BASE}/agentes/listar.php`;
-    const API_PROPIEDADES = `${API_BASE}/propiedades/listar.php`;
-    const API_CLIENTES = `${API_BASE}/clientes/listar.php`;
-    const API_UPDATE_ESTADO = `${API_BASE}/citas/actualizar_estado.php`;
+    const tbody = document.getElementById("tablaCitasAdmin");
+    const searchInput = document.getElementById("searchInput");
 
-    // 3. Validar Sesión de Administrador y Token
-    const user = JSON.parse(localStorage.getItem("user"));
-    const token = localStorage.getItem("token");
 
-    // Verificamos si el rol es el número 1 (admin) o la palabra "admin"
-    const isAdmin = user && (user.rol === "admin" || user.rol_id == 1);
-
-    if (!user || user.rol !== "admin" || !token) {
-        window.location.href = "/aura-realty/aura-realty/frontend/login.html";
-        return;
+    // 4. Buscador en tiempo real
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => cargarCitas(e.target.value));
     }
 
     // ============================================================
-    // CARGAR CITAS (Renderizado de Cards con Token)
+    // FUNCIÓN: Listar Citas (Diseño Mockup)
     // ============================================================
-    async function cargarCitas() {
-        citasContainer.innerHTML = '<div class="text-center w-100"><div class="spinner-border text-primary" role="status"></div></div>';
+    async function cargarCitas(search = "") {
+        const tbody = document.getElementById("tablaCitasAdmin");
+
+        // Si sigue saliendo el error, este log te dirá si el elemento existe en ese momento
+        if (!tbody) {
+            console.error("ERROR: El elemento 'tablaCitasAdmin' no existe en el DOM actual.");
+            return;
+        }
+
+        const token = localStorage.getItem("token");
+        const API_BASE = "/aura-realty/aura-realty/api";
 
         try {
-            const res = await fetch(API_LISTAR, {
-                method: "GET",
-                headers: {
-                    "Authorization": "Bearer " + token,
-                    "Content-Type": "application/json"
-                }
+            const res = await fetch(`${API_BASE}/citas/listar.php?search=${encodeURIComponent(search)}`, {
+                headers: { "Authorization": `Bearer ${token}` }
             });
 
-            // Si el servidor responde 401, redirigir al login
-            if (res.status === 401) {
-                localStorage.removeItem("token");
-                window.location.href = "/aura-realty/aura-realty/frontend/login.html";
-                return;
-            }
-
             const data = await res.json();
+            tbody.innerHTML = "";
 
             if (!data.citas || data.citas.length === 0) {
-                citasContainer.innerHTML = "";
-                noCitasMessage.style.display = "block";
+                tbody.innerHTML = "<tr><td colspan='8' class='text-center'>No hay solicitudes en la base de datos</td></tr>";
                 return;
             }
 
-            noCitasMessage.style.display = "none";
-            citasContainer.innerHTML = "";
-
             data.citas.forEach(cita => {
-                const card = document.createElement("div");
-                card.className = "cita-card";
-
-                const statusClass = `status-${cita.estado.toLowerCase().replace(' ', '-')}`;
-
-                card.innerHTML = `
-                    <div class="cita-header">
-                        <span class="cita-id">#${cita.id}</span>
-                        <span class="cita-status ${statusClass}">${cita.estado.toUpperCase()}</span>
-                    </div>
-                    <div class="cita-details">
-                        <div class="detail-item">
-                            <i class="fas fa-home detail-icon"></i>
-                            <div class="detail-content">
-                                <div class="detail-label">Propiedad</div>
-                                <div class="detail-value">${cita.propiedad}</div>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-user detail-icon"></i>
-                            <div class="detail-content">
-                                <div class="detail-label">Cliente</div>
-                                <div class="detail-value">${cita.cliente}</div>
-                            </div>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-calendar-alt detail-icon"></i>
-                            <div class="detail-content">
-                                <div class="detail-label">Fecha y Hora</div>
-                                <div class="detail-value">${cita.fecha} a las ${cita.hora}</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="cita-actions">
-                        <button class="btn-custom btn-sm" onclick="cambiarEstado(${cita.id}, 'finalizada')">Finalizar</button>
-                        <button class="btn-outline-custom btn-sm" onclick="cambiarEstado(${cita.id}, 'cancelada')">Cancelar</button>
-                    </div>
-                `;
-                citasContainer.appendChild(card);
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                <td>#${cita.id}</td>
+                <td class="fw-bold" style="color: var(--navy);">${cita.propiedad}</td>
+                <td>${cita.cliente}</td>
+                <td>${cita.fecha}</td>
+                <td>${cita.hora}</td>
+                <td><span class="badge bg-light text-dark border">${cita.agente_nombre || 'Pendiente'}</span></td>
+                <td><span class="badge bg-warning text-dark">${cita.estado.toUpperCase()}</span></td>
+                <td class="text-center">
+                    <button class="btn-assign me-2" onclick="abrirModalAsignar(${cita.id})">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-cancel-cita" onclick="cancelarCita(${cita.id})">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </td>
+            `;
+                tbody.appendChild(tr);
             });
         } catch (error) {
-            console.error("Error cargando citas:", error);
-            citasContainer.innerHTML = '<div class="alert alert-danger">Error al conectar con el servidor.</div>';
+            console.error("Error al cargar citas:", error);
         }
     }
 
-    // ============================================================
-    // GUARDAR NUEVA CITA (Envío de IDs y Token)
-    // ============================================================
-    if (formCita) {
-        formCita.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const payload = {
-                // Se envía null si el admin crea la cita directamente sin una solicitud previa
-                solicitud_id: document.getElementById("solicitud_id") ? document.getElementById("solicitud_id").value : null,
-                propiedad_id: document.getElementById("propiedad").value,
-                cliente_id: document.getElementById("cliente").value,
-                fecha: document.getElementById("fecha").value,
-                hora: document.getElementById("hora").value,
-                mensaje: document.getElementById("mensaje").value
-            };
-
-            try {
-                const res = await fetch(API_CREAR, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer " + token
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-
-                if (data.status === 'success' || data.success) {
-                    modalCita.hide();
-                    formCita.reset();
-                    cargarCitas();
-                    alert(data.mensaje || "Cita registrada con éxito");
-                } else {
-                    alert("Error: " + (data.error || data.message));
-                }
-            } catch (error) {
-                console.error("Error al guardar:", error);
-            }
-        });
+    // Helper para colores de estados según la BD
+    function getStatusBadge(status) {
+        const colors = {
+            'programada': 'bg-info text-dark',
+            'finalizada': 'bg-success',
+            'cancelada': 'bg-danger',
+            'pendiente': 'bg-warning text-dark'
+        };
+        return colors[status.toLowerCase()] || 'bg-secondary';
     }
-
-    // ============================================================
-    // ACTUALIZAR ESTADO (Global)
-    // ============================================================
-    window.cambiarEstado = async (id, nuevoEstado) => {
-        if (!confirm(`¿Seguro que deseas marcar esta cita como ${nuevoEstado}?`)) return;
-
-        try {
-            const res = await fetch(API_UPDATE_ESTADO, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
-                },
-                body: JSON.stringify({ id: id, estado: nuevoEstado })
-            });
-            const data = await res.json();
-
-            if (data.status === 'success') {
-                cargarCitas();
-            } else {
-                alert(data.error || "Error al actualizar el estado");
-            }
-        } catch (error) {
-            console.error("Error en la actualización:", error);
-        }
-    };
-
-    // ============================================================
-    // CARGAR SELECTS (Datos Reales de la BD)
-    // ============================================================
-    async function cargarSelects() {
-        try {
-            // Cargar Propiedades
-            const resP = await fetch(API_PROPIEDADES, { headers: { "Authorization": "Bearer " + token } });
-            const dataP = await resP.json();
-            const selectP = document.getElementById("propiedad");
-            selectP.innerHTML = '<option value="">Seleccione una propiedad...</option>';
-            dataP.propiedades.forEach(p => {
-                selectP.innerHTML += `<option value="${p.id}">${p.titulo}</option>`;
-            });
-
-            // Cargar Clientes
-            const resC = await fetch(API_CLIENTES, { headers: { "Authorization": "Bearer " + token } });
-            const dataC = await resC.json();
-            const selectC = document.getElementById("cliente");
-            selectC.innerHTML = '<option value="">Seleccione un cliente...</option>';
-            dataC.clientes.forEach(c => {
-                selectC.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-            });
-        } catch (error) {
-            console.error("Error cargando selects:", error);
-        }
-    }
-
-    // Evento para abrir modal de nueva cita
-    document.getElementById("btnNuevaCita").addEventListener("click", () => {
-        cargarSelects();
-        formCita.reset();
-        modalCita.show();
-    });
-
-    // Inicializar carga de datos
-    cargarCitas();
 });
+
+// ============================================================
+// FUNCIONES GLOBALES (Llamadas desde botones dinámicos)
+// ============================================================
+
+// Abre el modal y carga los agentes reales
+async function abrirModalAsignar(id) {
+    document.getElementById("citaIdAsignar").value = id;
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch("/aura-realty/aura-realty/api/agentes/listar.php", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        const select = document.getElementById("selectAgente");
+        select.innerHTML = '<option value="">Seleccione un agente...</option>';
+        data.agentes.forEach(a => {
+            select.innerHTML += `<option value="${a.id}">${a.nombre}</option>`;
+        });
+
+        const modal = new bootstrap.Modal(document.getElementById("modalAsignarAgente"));
+        modal.show();
+    } catch (e) { console.error("Error al cargar agentes", e); }
+}
+
+// Procesa la asignación (Solución al Error 401)
+async function confirmarAsignacion() {
+    const id = document.getElementById("citaIdAsignar").value;
+    const agente_id = document.getElementById("selectAgente").value;
+    const token = localStorage.getItem("token");
+
+    if (!agente_id) return alert("Por favor, seleccione un agente.");
+
+    try {
+        const res = await fetch("/aura-realty/aura-realty/api/citas/actualizar_estado.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Incluye el token para autorizar el POST
+            },
+            body: JSON.stringify({
+                id: id,
+                agente_id: agente_id,
+                estado: 'programada'
+            })
+        });
+
+        const data = await res.json();
+        if (data.status === 'success' || data.success) {
+            const modalEl = document.getElementById("modalAsignarAgente");
+            bootstrap.Modal.getInstance(modalEl).hide();
+            location.reload(); // Recargar para actualizar la tabla
+        } else {
+            alert(data.error || "No se pudo asignar el agente.");
+        }
+    } catch (e) { console.error("Error en asignación:", e); }
+}
+
+// Función para el icono del basurero (Cancelación Lógica)
+async function cancelarCita(id) {
+    if (!confirm("¿Está seguro de que desea cancelar esta cita definitivamente?")) return;
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch("/aura-realty/aura-realty/api/citas/actualizar_estado.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}` // Token obligatorio
+            },
+            body: JSON.stringify({ id: id, estado: 'cancelada' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') location.reload();
+    } catch (e) { console.error("Error al cancelar cita:", e); }
+}
