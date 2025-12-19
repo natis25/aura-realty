@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             switch (data.user.rol) {
                 case "admin":
-                    window.location.href = "admin/index.html"; // No lleva "/" al inicio
+                    window.location.href = "admin/panelControl.html"; // No lleva "/" al inicio
                     break;
                 case "cliente":
                     window.location.href = "cliente/index.html";

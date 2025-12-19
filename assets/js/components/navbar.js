@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <ul class="dropdown-menu dropdown-menu-end shadow">
                                     <li><a class="dropdown-item" href="/aura-realty/aura-realty/frontend/${user.rol}/index.html">Mi Panel</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#" id="btn-logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión</a></li>
+                                    <li><a class="dropdown-item text-danger" href="/aura-realty/aura-realty/frontend/login.html" id="btn-logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión</a></li>
                                 </ul>
                             </li>
                         ` : `
@@ -46,13 +46,21 @@ document.addEventListener("DOMContentLoaded", () => {
         </nav>`;
 
         // Lógica para cerrar sesión
-        const logoutBtn = document.getElementById("btn-logout");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                localStorage.removeItem("user");
-                window.location.href = "/aura-realty/frontend/login.html";
-            });
-        }
+        
+        document.addEventListener("click", (e) => {
+    // Verificamos si el elemento clicado (o su padre) es el botón de logout
+    const logoutBtn = e.target.closest("#btn-logout");
+    
+    if (logoutBtn) {
+        e.preventDefault();
+        console.log("Cerrando sesión desde el Navbar...");
+        
+        // Limpiamos el localStorage
+        localStorage.removeItem("user");
+        
+        // Redirección usando la ruta que ya confirmaste que te funciona
+        window.location.href = "/aura-realty/aura-realty/frontend/login.html";
+    }
+});
     }
 });
