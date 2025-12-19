@@ -1,56 +1,96 @@
 <?php
+// Limpiar cualquier output anterior
+ob_clean();
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Headers CORS
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Max-Age: 86400");
 
-include_once("../../config/db.php");
+// Handle preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
 
 try {
+    include_once("../../config/db.php");
+    error_log("listar_admin.php: DB incluido");
+} catch (Exception $e) {
+    error_log("listar_admin.php: Error incluyendo DB: " . $e->getMessage());
+    echo json_encode([
+        "success" => false,
+        "message" => "Error de configuración: " . $e->getMessage()
+    ]);
+    exit;
+}
 
-    $sql = "
-        SELECT 
-            s.id,
-            s.propiedad_id,
-            p.titulo AS propiedad_titulo,
-            s.usuario_id,
-            u.nombre AS cliente_nombre,
-            s.fecha_solicitada,
-            s.hora_solicitada,
-            s.estado,
-            s.mensaje,
-            s.creada_por,
-            s.agente_asignado AS agente_id,
-            ua.nombre AS agente_nombre
-        FROM solicitudes_cita s
-        INNER JOIN propiedades p ON s.propiedad_id = p.id
-        INNER JOIN usuarios u ON s.usuario_id = u.id
-        LEFT JOIN agentes a ON s.agente_asignado = a.id
-        LEFT JOIN usuarios ua ON a.usuario_id = ua.id
-        ORDER BY s.fecha_solicitada DESC, s.hora_solicitada DESC
-    ";
+try {
+    // Verificar conexión
+    if ($conn->connect_error) {
+        error_log("listar_admin.php: Error de conexión: " . $conn->connect_error);
+        echo json_encode([
+            "success" => false,
+            "message" => "Error de conexión a BD: " . $conn->connect_error
+        ]);
+        exit;
+    }
 
+    error_log("listar_admin.php: Conexión exitosa");
+
+    // Consulta completa
+    $sql = "SELECT s.id, s.propiedad_id, s.usuario_id, s.fecha_solicitada, s.hora_solicitada, s.estado, s.mensaje, s.creada_por, s.agente_asignado, p.titulo AS propiedad_titulo FROM solicitudes_cita s INNER JOIN propiedades p ON s.propiedad_id = p.id ORDER BY s.fecha_solicitada DESC, s.hora_solicitada DESC";
     $result = $conn->query($sql);
 
     if (!$result) {
-        throw new Exception("SQL Error: " . $conn->error);
+        error_log("listar_admin.php: Error SQL: " . $conn->error);
+        echo json_encode([
+            "success" => false,
+            "message" => "Error en consulta SQL",
+            "sql_error" => $conn->error
+        ]);
+        exit;
     }
 
     $solicitudes = [];
     while ($row = $result->fetch_assoc()) {
-        $solicitudes[] = $row;
+        $solicitudes[] = [
+            'id' => $row['id'],
+            'propiedad_titulo' => $row['propiedad_titulo'],
+            'cliente_nombre' => 'Cliente', // Placeholder por ahora
+            'fecha_solicitada' => $row['fecha_solicitada'],
+            'hora_solicitada' => $row['hora_solicitada'],
+            'estado' => $row['estado'],
+            'mensaje' => $row['mensaje'],
+            'agente_nombre' => $row['agente_asignado'] ? 'Agente' : '-', // Placeholder por ahora
+            'creada_por' => $row['creada_por'],
+            'agente_id' => $row['agente_asignado']
+        ];
     }
 
-    echo json_encode([
+    $response = json_encode([
         "success" => true,
-        "solicitudes" => $solicitudes
+        "solicitudes" => $solicitudes,
+        "total" => count($solicitudes)
     ]);
 
-} catch (Exception $e) {
+    error_log("listar_admin.php: Respuesta generada, longitud: " . strlen($response));
+    echo $response;
 
+} catch (Exception $e) {
+    error_log("listar_admin.php: Excepción: " . $e->getMessage());
     echo json_encode([
         "success" => false,
-        "message" => "Error en la consulta SQL",
-        "sql_error" => $e->getMessage()
+        "message" => "Error interno del servidor: " . $e->getMessage()
+    ]);
+} catch (Error $e) {
+    error_log("listar_admin.php: Error fatal: " . $e->getMessage());
+    echo json_encode([
+        "success" => false,
+        "message" => "Error fatal del servidor: " . $e->getMessage()
     ]);
 }
 ?>
