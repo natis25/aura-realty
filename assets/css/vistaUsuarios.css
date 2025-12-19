@@ -76,3 +76,53 @@ body {
     top: 10px;
     color: var(--gold);
 }
+
+/* --- Controles Superiores --- */
+.border-gold {
+    border: 1.5px solid var(--gold) !important;
+}
+
+.role-filter {
+    border: 1.5px solid var(--gold);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: var(--navy);
+    cursor: pointer;
+}
+
+/* --- Botones de Navegación y CRUD --- */
+.btn-navy {
+    background-color: var(--navy);
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-navy:hover {
+    background-color: #002d5a;
+    color: var(--gold);
+    transform: translateY(-2px);
+}
+
+.btn-panel-admin {
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
+    background-color: transparent;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-panel-admin:hover {
+    background-color: var(--gold);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Ajuste para iconos dentro de botones rounded-pill */
+.btn-rounded {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}

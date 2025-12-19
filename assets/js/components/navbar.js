@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     ${user.nombre}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end shadow">
-                                    <li><a class="dropdown-item" href="/aura-realty/aura-realty/frontend/${user.rol}/index.html">Mi Panel</a></li>
+                                    <li><a class="dropdown-item" href="/aura-realty/aura-realty/frontend/${user.rol}/panelControl.html">Mi Panel</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item text-danger" href="/aura-realty/aura-realty/frontend/login.html" id="btn-logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Cerrar Sesión</a></li>
                                 </ul>

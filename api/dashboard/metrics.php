@@ -1,108 +1,41 @@
 <?php
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+require_once "../../config/db.php";
 
-include_once("../../config/db.php");
+// 1. Total de Visitas y Canceladas
+$resVisitas = $conn->query("SELECT 
+    COUNT(*) as total, 
+    SUM(CASE WHEN estado = 'cancelada' THEN 1 ELSE 0 END) as canceladas 
+    FROM solicitudes_cita");
+$visitas = $resVisitas->fetch_assoc();
 
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
+// 2. Visitas que llegaron a contrato (estado 'completada' en solicitudes o citas)
+$resContratos = $conn->query("SELECT COUNT(*) as total FROM solicitudes_cita WHERE estado = 'completada'");
+$contratos = $resContratos->fetch_assoc();
 
-try {
+// 3. Propiedades por Tipo de Contrato (Venta, Alquiler)
+$resTipoContrato = $conn->query("SELECT tipo, COUNT(*) as cantidad FROM propiedades GROUP BY tipo");
+$tiposContrato = [];
+while($row = $resTipoContrato->fetch_assoc()) $tiposContrato[] = $row;
 
-    // =========================
-    // 1. Número de agentes
-    // =========================
-    $res = $conn->query("SELECT COUNT(*) AS total FROM usuarios WHERE rol_id = 3");
-    $agentes = $res ? intval($res->fetch_assoc()['total']) : 0;
+// 4. Visitas asignadas por trabajador (Agente)
+$resPorAgente = $conn->query("SELECT u.nombre, COUNT(s.id) as total 
+    FROM usuarios u 
+    JOIN agentes a ON u.id = a.usuario_id 
+    LEFT JOIN solicitudes_cita s ON a.id = s.agente_asignado 
+    GROUP BY u.id");
+$agentes = [];
+while($row = $resPorAgente->fetch_assoc()) $agentes[] = $row;
 
-    // =========================
-    // 2. Propiedades activas
-    // (tu BD usa 'disponible', no 'estado')
-    // =========================
-    $res = $conn->query("SELECT COUNT(*) AS total FROM propiedades WHERE disponible = 1");
-    $propiedades_activas = $res ? intval($res->fetch_assoc()['total']) : 0;
-
-    // =========================
-    // 3. Propiedades vendidas
-    // (tu tabla NO tiene 'estado', así que este valor será 0
-    //  puedes crear el campo si lo necesitas)
-    // =========================
-    $propiedades_vendidas = 0;
-
-    // =========================
-    // 4. Citas hoy
-    // =========================
-    $today = date('Y-m-d');
-    $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM solicitudes_cita WHERE fecha_solicitada=?");
-    $stmt->bind_param("s", $today);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    $citas_hoy = $res ? intval($res->fetch_assoc()['total']) : 0;
-
-    // =========================
-    // 5. Citas últimos 7 días
-    // =========================
-    $labels = [];
-    $values = [];
-    for ($i=6; $i>=0; $i--) {
-        $date = date('Y-m-d', strtotime("-$i days"));
-
-        $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM solicitudes_cita WHERE fecha_solicitada=?");
-        $stmt->bind_param("s", $date);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $count = $res ? intval($res->fetch_assoc()['total']) : 0;
-
-        $labels[] = date('d M', strtotime($date));
-        $values[] = $count;
-    }
-
-    // =========================
-    // 6. Top 5 agentes con más citas
-    // =========================
-    $sql = "
-        SELECT u.nombre, COUNT(s.id) AS citas
-        FROM usuarios u
-        LEFT JOIN agentes a ON a.usuario_id = u.id
-        LEFT JOIN solicitudes_cita s ON a.id = s.agente_asignado
-        WHERE u.rol_id = 3
-        GROUP BY u.id
-        ORDER BY citas DESC
-        LIMIT 5
-    ";
-
-    $res = $conn->query($sql);
-    $top_agentes = [];
-    
-    if ($res) {
-        while($row = $res->fetch_assoc()) {
-            $top_agentes[] = $row;
-        }
-    }
-
-    // =========================
-    // RESPUESTA JSON
-    // =========================
-    echo json_encode([
-        "success" => true,
-        "agentes" => $agentes,
-        "propiedades_activas" => $propiedades_activas,
-        "propiedades_vendidas" => $propiedades_vendidas,
-        "citas_hoy" => $citas_hoy,
-        "citas_7dias" => [
-            "labels" => $labels,
-            "values" => $values
-        ],
-        "top_agentes" => $top_agentes
-    ]);
-
-} catch(Exception $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Error al cargar métricas",
-        "error" => $e->getMessage()
-    ]);
-}
-
-$conn->close();
-?>
+echo json_encode([
+    "stats" => [
+        "visitas_agendadas" => $visitas['total'],
+        "visitas_canceladas" => $visitas['canceladas'],
+        "porcentaje_cancelacion" => ($visitas['total'] > 0) ? round(($visitas['canceladas'] / $visitas['total']) * 100, 2) : 0,
+        "contratos_exitosos" => $contratos['total']
+    ],
+    "graficos" => [
+        "por_contrato" => $tiposContrato,
+        "por_agente" => $agentes
+    ]
+]);
